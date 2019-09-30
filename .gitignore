@@ -4,3 +4,5 @@ README.md
 /models/
 /marble_contact_plugin/
 /robot_control/robot_control.pro
+/robot_control/main.o
+/robot_control/robot_control
