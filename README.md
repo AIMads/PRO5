@@ -1,2 +1,2 @@
-# rb-rca5
-Gazebo Environment for RB-RCA5
+# PRO5
+Gazebo Environment for PRO5
