@@ -6,5 +6,7 @@ README.md
 /robot_control/robot_control.pro
 /robot_control/main.o
 /robot_control/robot_control
+/robot_control/Linuxrobot_control
+/robot_control/Macrobot_control
 /robot_control/Makefile
 
