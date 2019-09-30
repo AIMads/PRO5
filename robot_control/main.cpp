@@ -35,22 +35,23 @@ void poseCallback(ConstPosesStampedPtr &_msg) {
 }
 
 void cameraCallback(ConstImageStampedPtr &msg) {
-
+/*
   std::size_t width = msg->image().width();
   std::size_t height = msg->image().height();
   const char *data = msg->image().data().c_str();
   cv::Mat im(int(height), int(width), CV_8UC3, const_cast<char *>(data));
 
   im = im.clone();
-  cv::cvtColor(im, im, CV_RGB2BGR);
+  cv::cvtColor(im, im, cv::COLOR_RGB2BGR);
 
   mutex.lock();
   cv::imshow("camera", im);
   mutex.unlock();
+ */
 }
 
 void lidarCallback(ConstLaserScanStampedPtr &msg) {
-
+/*
   //  std::cout << ">> " << msg->DebugString() << std::endl;
   float angle_min = float(msg->scan().angle_min());
   //  double angle_max = msg->scan().angle_max();
@@ -94,6 +95,7 @@ void lidarCallback(ConstLaserScanStampedPtr &msg) {
   mutex.lock();
   cv::imshow("lidar", im);
   mutex.unlock();
+ */
 }
 
 int main(int _argc, char **_argv) {
