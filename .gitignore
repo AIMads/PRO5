@@ -6,3 +6,4 @@ README.md
 /robot_control/robot_control.pro
 /robot_control/main.o
 /robot_control/robot_control
+/robot_control/Makefile
