@@ -15,7 +15,7 @@ CXX           = g++
 DEFINES       = 
 CFLAGS        = -pipe -O2 -std=c++11 -std=c++14 -pthread -std=c++11 -std=c++14 -pthread -Wall -W -fPIC $(DEFINES)
 CXXFLAGS      = -pipe -O2 -std=gnu++11 -std=c++11 -std=c++14 -pthread -std=c++11 -std=c++14 -pthread -Wall -W -fPIC $(DEFINES)
-INCPATH       = -I. -I/usr/include/gazebo-9 -I/usr/include/sdformat-6.2 -I/usr/include/ignition/transport4 -I/usr/include/ignition/msgs1 -I/usr/include/ignition/fuel_tools1 -I/usr/include/x86_64-linux-gnu -I/usr/lib/x86_64-linux-gnu/libzip/include -I/usr/include/ignition/common1 -I/usr/include/ignition/math4 -I/usr/include/uuid -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/local/include/opencv -I/usr/local/include -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++
+INCPATH       = -I. -I../../fuzzylite/fuzzylite -I/usr/include/gazebo-9 -I/usr/include/sdformat-6.2 -I/usr/include/ignition/transport4 -I/usr/include/ignition/msgs1 -I/usr/include/ignition/fuel_tools1 -I/usr/include/x86_64-linux-gnu -I/usr/lib/x86_64-linux-gnu/libzip/include -I/usr/include/ignition/common1 -I/usr/include/ignition/math4 -I/usr/include/uuid -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/local/include/opencv -I/usr/local/include -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++
 QMAKE         = /usr/lib/qt5/bin/qmake
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -38,7 +38,7 @@ DISTNAME      = Linuxrobot_control1.0.0
 DISTDIR = /home/mads/PRO5/robot_control/.tmp/Linuxrobot_control1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-O1
-LIBS          = $(SUBLIBS) -L/usr/lib/x86_64-linux-gnu/gazebo-9/plugins -Wl,-rpath,/usr/lib/x86_64-linux-gnu/gazebo-9/plugins -lgazebo_transport -lgazebo_physics -lgazebo_sensors -lgazebo_rendering -lgazebo_gui -lgazebo_client -lgazebo_msgs -lgazebo_common -lgazebo -lboost_thread -lboost_system -lboost_filesystem -lboost_program_options -lboost_regex -lboost_iostreams -lboost_date_time -lboost_chrono -lboost_atomic -lsdformat -ltbb -latomic -lignition-transport4 -luuid -lignition-msgs1 -lprotobuf -pthread -lpthread -lignition-math4 -lignition-fuel_tools1 -L/usr/local/lib -lopencv_stitching -lopencv_superres -lopencv_videostab -lopencv_aruco -lopencv_bgsegm -lopencv_bioinspired -lopencv_ccalib -lopencv_dnn_objdetect -lopencv_dpm -lopencv_face -lopencv_photo -lopencv_freetype -lopencv_fuzzy -lopencv_hfs -lopencv_img_hash -lopencv_line_descriptor -lopencv_optflow -lopencv_reg -lopencv_rgbd -lopencv_saliency -lopencv_stereo -lopencv_structured_light -lopencv_phase_unwrapping -lopencv_surface_matching -lopencv_tracking -lopencv_datasets -lopencv_text -lopencv_dnn -lopencv_plot -lopencv_xfeatures2d -lopencv_shape -lopencv_video -lopencv_ml -lopencv_ximgproc -lopencv_xobjdetect -lopencv_objdetect -lopencv_calib3d -lopencv_features2d -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs -lopencv_flann -lopencv_xphoto -lopencv_imgproc -lopencv_core 
+LIBS          = $(SUBLIBS) -L/home/mads/fuzzylite/fuzzylite/release/bin -lfuzzylite-static -L/usr/lib/x86_64-linux-gnu/gazebo-9/plugins -Wl,-rpath,/usr/lib/x86_64-linux-gnu/gazebo-9/plugins -lgazebo_transport -lgazebo_physics -lgazebo_sensors -lgazebo_rendering -lgazebo_gui -lgazebo_client -lgazebo_msgs -lgazebo_common -lgazebo -lboost_thread -lboost_system -lboost_filesystem -lboost_program_options -lboost_regex -lboost_iostreams -lboost_date_time -lboost_chrono -lboost_atomic -lsdformat -ltbb -latomic -lignition-transport4 -luuid -lignition-msgs1 -lprotobuf -pthread -lpthread -lignition-math4 -lignition-fuel_tools1 -L/usr/local/lib -lopencv_stitching -lopencv_superres -lopencv_videostab -lopencv_aruco -lopencv_bgsegm -lopencv_bioinspired -lopencv_ccalib -lopencv_dnn_objdetect -lopencv_dpm -lopencv_face -lopencv_photo -lopencv_freetype -lopencv_fuzzy -lopencv_hfs -lopencv_img_hash -lopencv_line_descriptor -lopencv_optflow -lopencv_reg -lopencv_rgbd -lopencv_saliency -lopencv_stereo -lopencv_structured_light -lopencv_phase_unwrapping -lopencv_surface_matching -lopencv_tracking -lopencv_datasets -lopencv_text -lopencv_dnn -lopencv_plot -lopencv_xfeatures2d -lopencv_shape -lopencv_video -lopencv_ml -lopencv_ximgproc -lopencv_xobjdetect -lopencv_objdetect -lopencv_calib3d -lopencv_features2d -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs -lopencv_flann -lopencv_xphoto -lopencv_imgproc -lopencv_core 
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -771,7 +771,138 @@ main.o: main.cpp /usr/include/gazebo-9/gazebo/gazebo_client.hh \
 		includes/ImageMarbleDetector.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
 
-FuzzyController.o: includes/FuzzyController.cpp includes/FuzzyController.h
+FuzzyController.o: includes/FuzzyController.cpp includes/fl/Headers.h \
+		includes/fl/fuzzylite.h \
+		includes/fl/Benchmark.h \
+		includes/fl/Complexity.h \
+		includes/fl/imex/FldExporter.h \
+		includes/fl/imex/Exporter.h \
+		includes/fl/Console.h \
+		includes/fl/Engine.h \
+		includes/fl/Exception.h \
+		includes/fl/activation/Activation.h \
+		includes/fl/activation/First.h \
+		includes/fl/activation/General.h \
+		includes/fl/activation/Highest.h \
+		includes/fl/activation/Last.h \
+		includes/fl/activation/Lowest.h \
+		includes/fl/activation/Proportional.h \
+		includes/fl/activation/Threshold.h \
+		includes/fl/defuzzifier/Bisector.h \
+		includes/fl/defuzzifier/IntegralDefuzzifier.h \
+		includes/fl/defuzzifier/Defuzzifier.h \
+		includes/fl/defuzzifier/Centroid.h \
+		includes/fl/defuzzifier/SmallestOfMaximum.h \
+		includes/fl/defuzzifier/LargestOfMaximum.h \
+		includes/fl/defuzzifier/MeanOfMaximum.h \
+		includes/fl/defuzzifier/WeightedAverage.h \
+		includes/fl/defuzzifier/WeightedDefuzzifier.h \
+		includes/fl/defuzzifier/WeightedSum.h \
+		includes/fl/factory/ActivationFactory.h \
+		includes/fl/factory/ConstructionFactory.h \
+		includes/fl/factory/Defuzzifier.h \
+		includes/fl/factory/Hedge.h \
+		includes/fl/factory/SNorm.h \
+		includes/fl/factory/Norm.h \
+		includes/fl/factory/TNorm.h \
+		includes/fl/factory/Term.h \
+		includes/fl/Operation.h \
+		../../fuzzylite/fuzzylite/fl/fuzzylite.h \
+		../../fuzzylite/fuzzylite/fl/Exception.h \
+		../../fuzzylite/fuzzylite/fl/defuzzifier/Defuzzifier.h \
+		../../fuzzylite/fuzzylite/fl/Complexity.h \
+		../../fuzzylite/fuzzylite/fl/norm/Norm.h \
+		../../fuzzylite/fuzzylite/fl/norm/SNorm.h \
+		../../fuzzylite/fuzzylite/fl/norm/TNorm.h \
+		includes/fl/factory/Activation.h \
+		includes/fl/factory/CloningFactory.h \
+		includes/fl/factory/FactoryManager.h \
+		includes/fl/factory/TNormFactory.h \
+		includes/fl/factory/SNormFactory.h \
+		includes/fl/factory/DefuzzifierFactory.h \
+		includes/fl/factory/IntegralDefuzzifier.h \
+		includes/fl/factory/WeightedDefuzzifier.h \
+		includes/fl/factory/TermFactory.h \
+		includes/fl/factory/HedgeFactory.h \
+		includes/fl/factory/FunctionFactory.h \
+		includes/fl/factory/Function.h \
+		includes/fl/imex/CppExporter.h \
+		includes/fl/imex/FclImporter.h \
+		includes/fl/imex/Importer.h \
+		includes/fl/imex/FclExporter.h \
+		includes/fl/imex/FisImporter.h \
+		includes/fl/imex/FisExporter.h \
+		includes/fl/imex/FllImporter.h \
+		includes/fl/imex/FllExporter.h \
+		includes/fl/imex/JavaExporter.h \
+		includes/fl/imex/RScriptExporter.h \
+		includes/fl/hedge/Any.h \
+		includes/fl/hedge/Extremely.h \
+		includes/fl/hedge/Hedge.h \
+		includes/fl/hedge/HedgeFunction.h \
+		includes/fl/hedge/Not.h \
+		includes/fl/hedge/Seldom.h \
+		includes/fl/hedge/Somewhat.h \
+		includes/fl/hedge/Very.h \
+		includes/fl/norm/Norm.h \
+		includes/fl/norm/SNorm.h \
+		includes/fl/norm/TNorm.h \
+		includes/fl/norm/s/AlgebraicSum.h \
+		includes/fl/norm/s/BoundedSum.h \
+		includes/fl/norm/s/DrasticSum.h \
+		includes/fl/norm/s/EinsteinSum.h \
+		includes/fl/norm/s/HamacherSum.h \
+		includes/fl/norm/s/Maximum.h \
+		includes/fl/norm/s/NilpotentMaximum.h \
+		includes/fl/norm/s/NormalizedSum.h \
+		includes/fl/norm/s/SNormFunction.h \
+		includes/fl/norm/s/UnboundedSum.h \
+		includes/fl/norm/t/AlgebraicProduct.h \
+		includes/fl/norm/t/BoundedDifference.h \
+		includes/fl/norm/t/DrasticProduct.h \
+		includes/fl/norm/t/EinsteinProduct.h \
+		includes/fl/norm/t/HamacherProduct.h \
+		includes/fl/norm/t/Minimum.h \
+		includes/fl/norm/t/NilpotentMinimum.h \
+		includes/fl/norm/t/TNormFunction.h \
+		includes/fl/rule/Antecedent.h \
+		includes/fl/rule/Consequent.h \
+		includes/fl/rule/Rule.h \
+		includes/fl/rule/RuleBlock.h \
+		includes/fl/rule/Expression.h \
+		includes/fl/term/Aggregated.h \
+		includes/fl/term/Activated.h \
+		includes/fl/term/Bell.h \
+		includes/fl/term/Binary.h \
+		includes/fl/term/Concave.h \
+		includes/fl/term/Constant.h \
+		includes/fl/term/Cosine.h \
+		includes/fl/term/Discrete.h \
+		includes/fl/term/Function.h \
+		../../fuzzylite/fuzzylite/fl/term/Term.h \
+		../../fuzzylite/fuzzylite/fl/Operation.h \
+		includes/fl/term/Gaussian.h \
+		includes/fl/term/GaussianProduct.h \
+		includes/fl/term/Linear.h \
+		includes/fl/term/PiShape.h \
+		includes/fl/term/Ramp.h \
+		includes/fl/term/Rectangle.h \
+		includes/fl/term/SShape.h \
+		includes/fl/term/Sigmoid.h \
+		includes/fl/term/SigmoidDifference.h \
+		includes/fl/term/SigmoidProduct.h \
+		includes/fl/term/Spike.h \
+		includes/fl/term/Term.h \
+		includes/fl/term/Trapezoid.h \
+		includes/fl/term/Triangle.h \
+		includes/fl/term/ZShape.h \
+		includes/fl/variable/InputVariable.h \
+		includes/fl/variable/Variable.h \
+		includes/fl/variable/Centroid.h \
+		includes/fl/variable/OutputVariable.h \
+		includes/fl/variable/Activated.h \
+		includes/fl/variable/Aggregated.h \
+		includes/FuzzyController.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o FuzzyController.o includes/FuzzyController.cpp
 
 LidarMarbleDetector.o: includes/LidarMarbleDetector.cpp includes/LidarMarbleDetector.h

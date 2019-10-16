@@ -1,6 +1,3 @@
-//
-// Created by Sina P. Soltani on 04/10/2019.
-//
 
 #ifndef FUZZYCONTROLLER_H
 #define FUZZYCONTROLLER_H
@@ -11,6 +8,8 @@ class FuzzyController {
 public:
     FuzzyController();
     void showSignsOfLife();
+    double decodeLidar(double *lidarData, int returncode);
+    double controller(double dir,double *lidarData, int steeringorspeed );
     ~FuzzyController();
 protected:
 
