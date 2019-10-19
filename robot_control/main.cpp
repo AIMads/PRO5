@@ -138,11 +138,10 @@ int main(int _argc, char **_argv) {
     double dir = 0.0;
     // Object init
     FuzzyController fc;
-    LidarMarbleDetector lmd;
+    LidarMarbleDetector lmd = LidarMarbleDetector(lidarData,NUM_DATA_POINTS,400,400);
     ImageMarbleDetector imd;
 
     fc.showSignsOfLife();
-    lmd.showSignsOfLife();
     imd.showSignsOfLife();
 
     // Loop
@@ -151,6 +150,7 @@ int main(int _argc, char **_argv) {
         
         std::tie(dir,speed) = fc.controller(dir,lidarData);
         std::cout << "Direction: " << dir << std::endl;
+        lmd.setLidarData(lidarData);
         
         // Generate a pose
         ignition::math::Pose3d pose(double(speed), 0, 0, 0, 0, double(dir));
