@@ -29,7 +29,9 @@ LidarMarbleDetector::LidarMarbleDetector(double *data, int size, int width, int 
 }
 
 void LidarMarbleDetector::drawCircle(Point center, double r, bool isTarget = false){
-    circle(_image,center,r, ((isTarget) ? Scalar(70,189,65) : Scalar(215,176,95)),10);
+    cout << "This is" << ((isTarget) ? " " : " not ") << "the target." << endl;
+    Scalar color = ((isTarget) ? Scalar(70,189,65) : Scalar(215,176,95));
+    circle(_image,center,r,color,10);
 }
 
 bool LidarMarbleDetector::isInRange(double range){
