@@ -218,7 +218,7 @@ void LidarMarbleDetector::getLidarSegments() {
     }*/
 }
 
-Mat LidarMarbleDetector::plotLidarData() {
+void LidarMarbleDetector::plotLidarData(Mat * img) {
     Mat image(2000,2000,CV_8UC3,Scalar(255,255,255));
     Scalar color = {0,0,0};
     Point startPoint = Point(image.cols / 2, image.rows / 2);
@@ -244,11 +244,12 @@ Mat LidarMarbleDetector::plotLidarData() {
         prevEndPoint = endPoint;
         //}
     }
-    return image;
+    *img = image.clone();
+    image.release();
 }
 
 void LidarMarbleDetector::onSetData(){
-    _image = plotLidarData();
+    plotLidarData(&_image);
     //getLidarSegments();
     //checkSegments(&_image);
 
