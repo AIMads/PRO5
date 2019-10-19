@@ -8,9 +8,11 @@
 #include "includes/FuzzyController.h"
 #include "includes/LidarMarbleDetector.h"
 #include "includes/ImageMarbleDetector.h"
-
+#define NUM_DATA_POINTS 200
 
 static boost::mutex mutex;
+
+double * lidarData = new double[NUM_DATA_POINTS];
 
 void statCallback(ConstWorldStatisticsPtr &_msg) {
     (void)_msg;
@@ -76,17 +78,16 @@ void lidarCallback(ConstLaserScanStampedPtr &msg) {
      cv::Mat im(height, width, CV_8UC3);
      im.setTo(0);
      for (int i = 0; i < nranges; i++) {
-     float angle = angle_min + i * angle_increment;
-     float range = std::min(float(msg->scan().ranges(i)), range_max);
-     //    double intensity = msg->scan().intensities(i);
-     cv::Point2f startpt(200.5f + range_min * px_per_m * std::cos(angle),
-     200.5f - range_min * px_per_m * std::sin(angle));
-     cv::Point2f endpt(200.5f + range * px_per_m * std::cos(angle),
-     200.5f - range * px_per_m * std::sin(angle));
-     cv::line(im, startpt * 16, endpt * 16, cv::Scalar(255, 255, 255, 255), 1,
-     cv::LINE_AA, 4);
-
-         //std::cout << angle << " " << range << std::endl;
+        float angle = angle_min + i * angle_increment;
+        float range = std::min(float(msg->scan().ranges(i)), range_max);
+        //    double intensity = msg->scan().intensities(i);
+        cv::Point2f startpt(200.5f + range_min * px_per_m * std::cos(angle),
+        200.5f - range_min * px_per_m * std::sin(angle));
+        cv::Point2f endpt(200.5f + range * px_per_m * std::cos(angle),
+        200.5f - range * px_per_m * std::sin(angle));
+        cv::line(im, startpt * 16, endpt * 16, cv::Scalar(255, 255, 255, 255), 1,
+        cv::LINE_AA, 4);
+        lidarData[i] = range;
      }
      cv::circle(im, cv::Point(200, 200), 2, cv::Scalar(0, 0, 255));
      cv::putText(im, std::to_string(sec) + ":" + std::to_string(nsec),
@@ -102,7 +103,7 @@ void lidarCallback(ConstLaserScanStampedPtr &msg) {
 int main(int _argc, char **_argv) {
     // Load gazebo
     gazebo::client::setup(_argc, _argv);
-
+    
     // Create our node for communication
     gazebo::transport::NodePtr node(new gazebo::transport::Node());
     node->Init();
@@ -132,9 +133,9 @@ int main(int _argc, char **_argv) {
     worldPublisher->WaitForConnection();
     worldPublisher->Publish(controlMessage);
 
-    float speed = 0.1;
-    float dir = 0.0;
-
+    float speed = 0.0;
+    double dirs = 0.0;
+    double dir = 0.0;
     // Object init
     FuzzyController fc;
     LidarMarbleDetector lmd;
@@ -147,12 +148,10 @@ int main(int _argc, char **_argv) {
     // Loop
     while (true) {
         gazebo::common::Time::MSleep(10);
-
-
-
-        // Change speed and direction based on fuzzycontrol
-
-
+        
+        std::tie(dir,speed) = fc.controller(dir,lidarData);
+        std::cout << "Direction: " << dir << std::endl;
+        
         // Generate a pose
         ignition::math::Pose3d pose(double(speed), 0, 0, 0, 0, double(dir));
 
