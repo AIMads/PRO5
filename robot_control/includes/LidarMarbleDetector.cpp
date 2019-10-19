@@ -162,6 +162,13 @@ void LidarMarbleDetector::getLidarSegments() {
     Mat image(2000,2000,CV_8UC3,Scalar(255,255,255));
 
     _numSegments = 0;
+    
+    int * numPtsInSegment = new int[NUM_DATAPTS];
+    Point ** segments = new Point*[NUM_DATAPTS];
+    for (int j = 0; j < NUM_DATAPTS; ++j) {
+        segments[j] = new Point[NUM_DATAPTS];
+    }
+    
     int pointIndex = 0;
 
     Point startPoint = Point(image.cols / 2, image.rows / 2);
@@ -176,20 +183,31 @@ void LidarMarbleDetector::getLidarSegments() {
 
         if(isInRange(_lidarData[i])) {
             if(i > 0 && i < _size - 1 && norm(endPoint - prevEndPoint) < THRESHOLD){
-                _segments[_numSegments][pointIndex++] = prevEndPoint;
-                _segments[_numSegments][pointIndex] = endPoint;
+                segments[numSegments][pointIndex++] = prevEndPoint;
+                segments[numSegments][pointIndex] = endPoint;
                 // add prevEndPoint and endPoint to array
                 // decrease indexOfNewestElement to point to last element so it replaces it on next visit
                 // [1964,1113], [1925,1087]
                 //              [1925,1087], [1886,1063]
             } else {
                 // new segment
-                _numPtsInSegment[_numSegments++] = ++pointIndex;
+                numPtsInSegment[numSegments++] = ++pointIndex;
                 pointIndex = 0;
             }
             prevEndPoint = endPoint;
         }
     }
+    
+    _numPtsInSegment = numPtsInSegment;
+    _segments = segments;
+    
+    delete [] numPtsInSegment;
+    
+    for(int i = 0; i < NUM_DATAPTS; ++i) {
+        delete [] segments[i];
+    }
+    delete [] segments;
+    
     /*
     for (int i = 0; i < numSegments; ++i) {
         cout << "Segment #" << i << endl;
@@ -242,7 +260,7 @@ void LidarMarbleDetector::onSetData(){
 
 void LidarMarbleDetector::setLidarData(double *data) {
     _lidarData = data;
-    //onSetData();
+    onSetData();
 }
 
 LidarMarbleDetector::~LidarMarbleDetector(){}
