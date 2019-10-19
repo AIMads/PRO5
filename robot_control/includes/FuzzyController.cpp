@@ -40,7 +40,7 @@ double FuzzyController::decodeLidar(double *lidarData, int returncode)
     }
 }
 
-double FuzzyController::controller(double dir, double *lidarData,int steeringorspeed)
+std::tuple<double,double> FuzzyController::controller(double dir, double *lidarData)
 {
     Engine* engine = FllImporter().fromFile("includes/FuzzyController.fll");
     scalar obstloc;
@@ -66,15 +66,8 @@ double FuzzyController::controller(double dir, double *lidarData,int steeringors
     dir += steer->getValue();
     FL_LOG("obstacle.input = " << Op::str(obst) << 
         " => " << "steer.output = " << Op::str(steer->getValue()));
-    if (steeringorspeed == 0)
-    {    
-        return steer->getValue();
-    }
-    else
-    {
-        return speed->getValue();
-    }
     
+    return std::make_tuple(steer->getValue(),speed->getValue());//steerandspeed;      
 }
 
 //sudo g++ obstacleavoidance.cpp -I/home/mads/fuzzylite/fuzzylite -L/home/mads/fuzzylite/fuzzylite/release/bin -lfuzzylite-static -o oa

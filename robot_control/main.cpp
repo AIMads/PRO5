@@ -8,11 +8,11 @@
 #include "includes/FuzzyController.h"
 #include "includes/LidarMarbleDetector.h"
 #include "includes/ImageMarbleDetector.h"
-
+#define NUM_DATA_POINTS 200
 
 static boost::mutex mutex;
 
-double * lidarData = new double[200];
+double * lidarData = new double[NUM_DATA_POINTS];
 
 void statCallback(ConstWorldStatisticsPtr &_msg) {
     (void)_msg;
@@ -103,7 +103,7 @@ void lidarCallback(ConstLaserScanStampedPtr &msg) {
 int main(int _argc, char **_argv) {
     // Load gazebo
     gazebo::client::setup(_argc, _argv);
-
+    
     // Create our node for communication
     gazebo::transport::NodePtr node(new gazebo::transport::Node());
     node->Init();
@@ -133,7 +133,7 @@ int main(int _argc, char **_argv) {
     worldPublisher->WaitForConnection();
     worldPublisher->Publish(controlMessage);
 
-    float speed = 0.8;
+    float speed = 0.0;
     double dirs = 0.0;
     double dir = 0.0;
     // Object init
@@ -148,16 +148,10 @@ int main(int _argc, char **_argv) {
     // Loop
     while (true) {
         gazebo::common::Time::MSleep(10);
-
-        /*for (int i = 0; i < 200; i++)
-        {
-            std::cout << lidarData[i] << std::endl;
-        }*/
         
-        // Change speed and direction based on fuzzycontrol
-        dir = fc.controller(dir,lidarData,0);
-        speed = fc.controller(dir,lidarData,1);
+        std::tie(dir,speed) = fc.controller(dir,lidarData);
         std::cout << "Direction: " << dir << std::endl;
+        
         // Generate a pose
         ignition::math::Pose3d pose(double(speed), 0, 0, 0, 0, double(dir));
 
