@@ -51,7 +51,7 @@ public:
     void checkSegments(LidarSegments lidarSegments, Mat * image);
 
     LidarSegments getLidarSegments(double * data, int numDataPoints);
-    Mat plotLidarData(double * data, int numDataPoints);
+    Mat plotLidarData();
 
     void onSetData();
     void setLidarData(double * data);

@@ -198,20 +198,20 @@ LidarSegments LidarMarbleDetector::getLidarSegments(double * data, int numDataPo
     return {numSegments, numPtsInSegment, segments};
 }
 
-Mat LidarMarbleDetector::plotLidarData(double * data, int numDataPoints) {
+Mat LidarMarbleDetector::plotLidarData() {
     Mat image(2000,2000,CV_8UC3,Scalar(255,255,255));
     Scalar color = {0,0,0};
     Point startPoint = Point(image.cols / 2, image.rows / 2);
-    Point prevEndPoint = Point((int)(100 * data[0] * sin(ROTATION_OFFSET) + startPoint.x), (int)(100 * data[0] * cos(ROTATION_OFFSET) + startPoint.y));
+    Point prevEndPoint = Point((int)(100 * _lidarData[0] * sin(ROTATION_OFFSET) + startPoint.x), (int)(100 * _lidarData[0] * cos(ROTATION_OFFSET) + startPoint.y));
 
-    for (int i = 0; i < numDataPoints; ++i) {
+    for (int i = 0; i < _size; ++i) {
 
-        int distance = (int) (100 * data[i]);
+        int distance = (int) (100 * _lidarData[i]);
         double angle = i * ANGULAR_PREC + ROTATION_OFFSET;
 
         Point endPoint = Point((int)(distance * sin(angle) + startPoint.x), (int)(distance * cos(angle) + startPoint.y));
 
-        /*if(true || isInRange(data[i])) {*/
+        /*if(true || isInRange(_lidarData[i])) {*/
         if(i > 0 && norm(endPoint - prevEndPoint) < THRESHOLD){
             line(image, prevEndPoint, endPoint, color,5);
             //cout << prevEndPoint << endPoint << endl;
