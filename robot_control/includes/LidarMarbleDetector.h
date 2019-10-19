@@ -34,7 +34,7 @@ struct LidarSegments{int numSegments; int * numPtsInSegment; Point ** segments;}
 class LidarMarbleDetector {
 public:
     LidarMarbleDetector();
-    LidarMarbleDetector(double * data, int size);
+    LidarMarbleDetector(double * data, int size, int width, int height);
 
     void drawCircle(Mat * img, Point center, double r);
 
@@ -61,6 +61,8 @@ public:
 protected:
     double * _lidarData;
     int _size;
+    int _imageWidth;
+    int _imageHeight;
 };
 
 
