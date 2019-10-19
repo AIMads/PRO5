@@ -26,10 +26,6 @@
 #define IMAGE_COLS 2000
 #define IMAGE_ROWS 2000
 
-
-using namespace std;
-using namespace cv;
-
 using namespace std;
 using namespace cv;
 
