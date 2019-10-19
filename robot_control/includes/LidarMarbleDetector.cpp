@@ -28,8 +28,8 @@ LidarMarbleDetector::LidarMarbleDetector(double *data, int size, int width, int 
     setLidarData(data);
 }
 
-void LidarMarbleDetector::drawCircle(Mat * img, Point center, double r){
-    circle(*img,center,r,Scalar(70,189,65),10);
+void LidarMarbleDetector::drawCircle(Point center, double r){
+    circle(_image,center,r,Scalar(70,189,65),10);
 }
 
 bool LidarMarbleDetector::isInRange(double range){
@@ -159,7 +159,7 @@ void LidarMarbleDetector::checkSegments(){
             auto circle = calculateCenterAndRadiusOfCircle(first, middle, last);
             //cout << "RADIUS  " << circle.radius << endl;
             if (circle.radius < MAX_RADIUS)
-                drawCircle(_image, circle.center, circle.radius);
+                drawCircle(circle.center, circle.radius);
         }
     }
 }
