@@ -7,6 +7,9 @@
 LidarMarbleDetector::LidarMarbleDetector(){}
 
 LidarMarbleDetector::LidarMarbleDetector(double *data, int size, int width, int height) {
+    Mat image(2000,2000,CV_8UC3,Scalar(255,255,255));
+    _image = image.clone();
+    
     namedWindow(WINDOW_NAME, WINDOW_NORMAL);
     resizeWindow(WINDOW_NAME,_imageWidth,_imageHeight);
     
@@ -162,8 +165,6 @@ void LidarMarbleDetector::checkSegments(Mat * image){
 }
 
 void LidarMarbleDetector::getLidarSegments() {
-    Mat image(2000,2000,CV_8UC3,Scalar(255,255,255));
-
     _numSegments = 0;
     
     int * numPtsInSegment = new int[NUM_DATAPTS];
@@ -174,7 +175,7 @@ void LidarMarbleDetector::getLidarSegments() {
     
     int pointIndex = 0;
 
-    Point startPoint = Point(image.cols / 2, image.rows / 2);
+    Point startPoint = Point(IMAGE_COLS / 2, IMAGE_ROWS / 2);
     Point prevEndPoint = Point((int)(100 * _lidarData[0] * sin(ROTATION_OFFSET) + startPoint.x), (int)(100 * _lidarData[0] * cos(ROTATION_OFFSET) + startPoint.y));
 
     for (int i = 0; i < _size; ++i) {
@@ -221,10 +222,10 @@ void LidarMarbleDetector::getLidarSegments() {
     }*/
 }
 
-void LidarMarbleDetector::plotLidarData(Mat * img) {
-    Mat image(2000,2000,CV_8UC3,Scalar(255,255,255));
+void LidarMarbleDetector::plotLidarData() {
+    _image.setTo(Scalar(255,255,255));
     Scalar color = {0,0,0};
-    Point startPoint = Point(image.cols / 2, image.rows / 2);
+    Point startPoint = Point(IMAGE_COLS / 2, IMAGE_ROWS / 2);
     Point prevEndPoint = Point((int)(100 * _lidarData[0] * sin(ROTATION_OFFSET) + startPoint.x), (int)(100 * _lidarData[0] * cos(ROTATION_OFFSET) + startPoint.y));
 
     for (int i = 0; i < _size; ++i) {
@@ -236,28 +237,25 @@ void LidarMarbleDetector::plotLidarData(Mat * img) {
 
         /*if(true || isInRange(_lidarData[i])) {*/
         if(i > 0 && norm(endPoint - prevEndPoint) < THRESHOLD){
-            line(image, prevEndPoint, endPoint, color,5);
+            line(_image, prevEndPoint, endPoint, color,5);
             //cout << prevEndPoint << endPoint << endl;
         } else {
             //cout << endl << "New Segment" << endl;
         }
 
-        circle(image, endPoint, 1, color, 5);
-        line(image,startPoint,endPoint,color);
+        circle(_image, endPoint, 1, color, 5);
+        line(_image,startPoint,endPoint,color);
         prevEndPoint = endPoint;
         //}
     }
-    *img = image.clone();
-    image.release();
 }
 
 void LidarMarbleDetector::onSetData(){
-    //plotLidarData(&_image);
+    plotLidarData();
     //getLidarSegments();
     //checkSegments(&_image);
-    Mat image(2,2,CV_8UC3,Scalar(255,255,255));
     
-    imshow(WINDOW_NAME, image);
+    imshow(WINDOW_NAME, _image);
     waitKey(1);
 }
 
