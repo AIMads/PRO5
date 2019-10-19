@@ -239,3 +239,5 @@ void LidarMarbleDetector::setLidarData(double *data) {
     _lidarData = data;
     onSetData();
 }
+
+LidarMarbleDetector::~LidarMarbleDetector(){}
