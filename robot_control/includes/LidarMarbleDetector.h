@@ -34,7 +34,7 @@ public:
     LidarMarbleDetector();
     LidarMarbleDetector(double * data, int size, int width, int height);
 
-    void drawCircle(Point center, double r);
+    void drawCircle(Point center, double r, bool isTarget);
 
     bool isInRange(double range);
     double determinant(Point a, Point b);
@@ -45,6 +45,7 @@ public:
     void perpendicularBisector(Point a, Point b, double *slopePtr, double *interceptPtr);
     auto calculateCenterAndRadiusOfCircle(Point a, Point b, Point c);
 
+    int getIndexOfTargetCircle(Point * centers, int size);
     bool checkForCircles(int numPts, Point* points);
     void checkSegments();
 

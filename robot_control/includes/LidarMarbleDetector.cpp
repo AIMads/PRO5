@@ -28,8 +28,8 @@ LidarMarbleDetector::LidarMarbleDetector(double *data, int size, int width, int 
     setLidarData(data);
 }
 
-void LidarMarbleDetector::drawCircle(Point center, double r){
-    circle(_image,center,r,Scalar(70,189,65),10);
+void LidarMarbleDetector::drawCircle(Point center, double r, bool isTarget = false){
+    circle(_image,center,r, ((isTarget) ? Scalar(70,189,65) : Scalar(95,176,215)),10);
 }
 
 bool LidarMarbleDetector::isInRange(double range){
@@ -128,6 +128,19 @@ auto LidarMarbleDetector::calculateCenterAndRadiusOfCircle(Point a, Point b, Poi
     return circle{center,radius};
 }
 
+int LidarMarbleDetector::getIndexOfTargetCircle(Point * centers, int size){
+    Point robot = Point(IMAGE_COLS / 2, IMAGE_ROWS / 2);
+    int indexOfTarget = 0;
+    Point target = centers[indexOfTarget];
+    for (int i = 0; i < size; i++) {
+        if(norm(centers[i] - robot) < norm(target - robot)){
+            indexOfTarget = i;
+            target = centers[i];
+        }
+    }
+    return indexOfTarget;
+}
+
 bool LidarMarbleDetector::checkForCircles(int numPts, Point* points){
 
     auto * slopes = new double[numPts];
@@ -150,6 +163,11 @@ bool LidarMarbleDetector::checkForCircles(int numPts, Point* points){
 }
 
 void LidarMarbleDetector::checkSegments(){
+    
+    int numCircles = 0;
+    Point * circleCenters = new Point[_size];
+    double * circleRadii = new double[_size];
+    
     for (int i = 0; i < _numSegments; ++i) {
         //cout << "SEGMENT # " << i << endl;
         if (checkForCircles(_numPtsInSegment[i], _segments[i])) {
@@ -158,10 +176,18 @@ void LidarMarbleDetector::checkSegments(){
             Point last = _segments[i][_numPtsInSegment[i] - 1];
             auto circle = calculateCenterAndRadiusOfCircle(first, middle, last);
             //cout << "RADIUS  " << circle.radius << endl;
-            if (circle.radius < MAX_RADIUS)
+            if (circle.radius < MAX_RADIUS){
+                circleCenters[numCircles++] = circle.center;
                 drawCircle(circle.center, circle.radius);
+            }
         }
     }
+    if(numCircles > 0){
+        int indexOfTargetCircle = getIndexOfTargetCircle(circleCenters, numCircles);
+        drawCircle(circleCenters[indexOfTargetCircle],circleRadii[indexOfTargetCircle],true);
+    }
+    delete [] circleCenters;
+    delete [] circleRadii;
 }
 
 void LidarMarbleDetector::getLidarSegments() {
