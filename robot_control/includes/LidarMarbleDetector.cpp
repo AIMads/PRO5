@@ -10,6 +10,14 @@ LidarMarbleDetector::LidarMarbleDetector(double *data, int size, int width, int 
     _imageWidth = width;
     _imageHeight = height;
     _size = size;
+    
+    _numSegments = 0;
+    _numPtsInSegment = new int[_size];
+    _segments = new Point*[_size];
+    for (int j = 0; j < _size; ++j) {
+        segments[j] = new Point[_size];
+    }
+    
     _lidarData = new double[_size];
     setLidarData(data);
 }
@@ -135,13 +143,13 @@ bool LidarMarbleDetector::checkForCircles(int numPts, Point* points){
     return false;
 }
 
-void LidarMarbleDetector::checkSegments(LidarSegments lidarSegments, Mat * image){
-    for (int i = 0; i < lidarSegments.numSegments; ++i) {
+void LidarMarbleDetector::checkSegments(Mat * image){
+    for (int i = 0; i < _numSegments; ++i) {
         //cout << "SEGMENT # " << i << endl;
-        if (checkForCircles(lidarSegments.numPtsInSegment[i], lidarSegments.segments[i])) {
-            Point first = lidarSegments.segments[i][0];
-            Point middle = lidarSegments.segments[i][lidarSegments.numPtsInSegment[i] / 2];
-            Point last = lidarSegments.segments[i][lidarSegments.numPtsInSegment[i] - 1];
+        if (checkForCircles(_numPtsInSegment[i], _segments[i])) {
+            Point first = _segments[i][0];
+            Point middle = _segments[i][_numPtsInSegment[i] / 2];
+            Point last = _segments[i][_numPtsInSegment[i] - 1];
             auto circle = calculateCenterAndRadiusOfCircle(first, middle, last);
             //cout << "RADIUS  " << circle.radius << endl;
             if (circle.radius < MAX_RADIUS)
@@ -153,12 +161,7 @@ void LidarMarbleDetector::checkSegments(LidarSegments lidarSegments, Mat * image
 LidarSegments LidarMarbleDetector::getLidarSegments() {
     Mat image(2000,2000,CV_8UC3,Scalar(255,255,255));
 
-    int numSegments = 0;
-    int * numPtsInSegment = new int[NUM_DATAPTS];
-    Point ** segments = new Point*[NUM_DATAPTS];
-    for (int j = 0; j < NUM_DATAPTS; ++j) {
-        segments[j] = new Point[NUM_DATAPTS];
-    }
+    _numSegments = 0;
     int pointIndex = 0;
 
     Point startPoint = Point(image.cols / 2, image.rows / 2);
@@ -173,15 +176,15 @@ LidarSegments LidarMarbleDetector::getLidarSegments() {
 
         if(isInRange(_lidarData[i])) {
             if(i > 0 && i < _size - 1 && norm(endPoint - prevEndPoint) < THRESHOLD){
-                segments[numSegments][pointIndex++] = prevEndPoint;
-                segments[numSegments][pointIndex] = endPoint;
+                _segments[_numSegments][pointIndex++] = prevEndPoint;
+                _segments[_numSegments][pointIndex] = endPoint;
                 // add prevEndPoint and endPoint to array
                 // decrease indexOfNewestElement to point to last element so it replaces it on next visit
                 // [1964,1113], [1925,1087]
                 //              [1925,1087], [1886,1063]
             } else {
                 // new segment
-                numPtsInSegment[numSegments++] = ++pointIndex;
+                _numPtsInSegment[_numSegments++] = ++pointIndex;
                 pointIndex = 0;
             }
             prevEndPoint = endPoint;
@@ -230,13 +233,8 @@ Mat LidarMarbleDetector::plotLidarData() {
 
 void LidarMarbleDetector::onSetData(){
     Mat image = plotLidarData();
-    LidarSegments lidarSegments = getLidarSegments();
-    checkSegments(lidarSegments, &image);
-    
-    for(int i = 0; i < NUM_DATAPTS; ++i) {
-        delete [] lidarSegments.segments[i];
-    }
-    delete [] lidarSegments.segments;
+    getLidarSegments();
+    checkSegments(&image);
 
     namedWindow("Lidar Plot", WINDOW_NORMAL);
     resizeWindow("Lidar Plot",_imageWidth,_imageHeight);
