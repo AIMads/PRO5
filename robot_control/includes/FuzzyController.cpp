@@ -56,16 +56,16 @@ std::tuple<double,double> FuzzyController::controller(double dir, double *lidarD
         
     double obst = decodeLidar(lidarData,1);
     //obstloc = obst;
-    std::cout << "ClosestObstacle Angle: " << obst << std::endl;
+    //std::cout << "ClosestObstacle Angle: " << obst << std::endl;
     obstacle->setValue(obst);
     obst = decodeLidar(lidarData,0);
-    std::cout << "ClosestObstacle Range: " << obst << std::endl;
+    //std::cout << "ClosestObstacle Range: " << obst << std::endl;
     distanceToObstacle->setValue(obst);
     //direction->setValue(dir);
     engine->process();
     dir += steer->getValue();
-    FL_LOG("obstacle.input = " << Op::str(obst) << 
-        " => " << "steer.output = " << Op::str(steer->getValue()));
+   // FL_LOG("obstacle.input = " << Op::str(obst) << 
+     //   " => " << "steer.output = " << Op::str(steer->getValue()));
     
     return std::make_tuple(steer->getValue(),speed->getValue());//steerandspeed;      
 }

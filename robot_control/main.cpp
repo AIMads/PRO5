@@ -149,7 +149,9 @@ int main(int _argc, char **_argv) {
         gazebo::common::Time::MSleep(10);
         
         std::tie(dir,speed) = fc.controller(dir,lidarData);
-        std::cout << "Direction: " << dir << std::endl;
+
+        //std::cout << "Direction: " << dir << std::endl;
+
         lmd.setLidarData(lidarData);
         
         // Generate a pose
