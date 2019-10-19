@@ -198,8 +198,6 @@ void LidarMarbleDetector::getLidarSegments() {
         }
         cout << endl;
     }*/
-
-    return {numSegments, numPtsInSegment, segments};
 }
 
 Mat LidarMarbleDetector::plotLidarData() {
