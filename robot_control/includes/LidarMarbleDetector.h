@@ -29,8 +29,6 @@ using namespace cv;
 using namespace std;
 using namespace cv;
 
-struct LidarSegments{int numSegments; int * numPtsInSegment; Point ** segments;};
-
 class LidarMarbleDetector {
 public:
     LidarMarbleDetector();
@@ -48,9 +46,9 @@ public:
     auto calculateCenterAndRadiusOfCircle(Point a, Point b, Point c);
 
     bool checkForCircles(int numPts, Point* points);
-    void checkSegments(LidarSegments lidarSegments, Mat * image);
+    void checkSegments(Mat * image);
 
-    LidarSegments getLidarSegments();
+    void getLidarSegments();
     Mat plotLidarData();
 
     void onSetData();
@@ -63,6 +61,10 @@ protected:
     int _size;
     int _imageWidth;
     int _imageHeight;
+    
+    int _numSegments;
+    int * _numPtsInSegment;
+    Point ** _segments;
 };
 
 
