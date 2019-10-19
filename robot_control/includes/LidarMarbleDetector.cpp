@@ -15,7 +15,7 @@ LidarMarbleDetector::LidarMarbleDetector(double *data, int size, int width, int 
     _numPtsInSegment = new int[_size];
     _segments = new Point*[_size];
     for (int j = 0; j < _size; ++j) {
-        segments[j] = new Point[_size];
+        _segments[j] = new Point[_size];
     }
     
     _lidarData = new double[_size];
@@ -158,7 +158,7 @@ void LidarMarbleDetector::checkSegments(Mat * image){
     }
 }
 
-LidarSegments LidarMarbleDetector::getLidarSegments() {
+void LidarMarbleDetector::getLidarSegments() {
     Mat image(2000,2000,CV_8UC3,Scalar(255,255,255));
 
     _numSegments = 0;
