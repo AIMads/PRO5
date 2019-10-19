@@ -49,7 +49,7 @@ public:
     void checkSegments(Mat * image);
 
     void getLidarSegments();
-    Mat plotLidarData();
+    void plotLidarData(Mat * image);
 
     void onSetData();
     void setLidarData(double * data);
