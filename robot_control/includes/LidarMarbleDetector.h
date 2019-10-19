@@ -22,6 +22,7 @@
 #define FOV (2.27 - (-2.27))
 #define NUM_DATAPTS 200
 #define ANGULAR_PREC FOV / NUM_DATAPTS
+#define WINDOW_NAME "Lidar Plot"
 
 using namespace std;
 using namespace cv;
