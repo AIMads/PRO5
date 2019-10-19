@@ -230,13 +230,13 @@ Mat LidarMarbleDetector::plotLidarData() {
 }
 
 void LidarMarbleDetector::onSetData(){
-    Mat image = plotLidarData();
+    _image = plotLidarData();
     getLidarSegments();
-    checkSegments(&image);
+    checkSegments(&_image);
 
     namedWindow("Lidar Plot", WINDOW_NORMAL);
     resizeWindow("Lidar Plot",_imageWidth,_imageHeight);
-    imshow("Lidar Plot", image);
+    imshow("Lidar Plot", _image);
     waitKey(1);
 }
 
