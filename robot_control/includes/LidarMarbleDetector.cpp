@@ -228,7 +228,7 @@ Mat LidarMarbleDetector::plotLidarData() {
 }
 
 void LidarMarbleDetector::onSetData(){
-    Mat image = plotLidarData(_lidarData, NUM_DATAPTS);
+    Mat image = plotLidarData();
     LidarSegments lidarSegments = getLidarSegments(_lidarData, NUM_DATAPTS);
     checkSegments(lidarSegments, &image);
 
