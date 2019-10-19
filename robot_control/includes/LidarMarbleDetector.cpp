@@ -252,7 +252,7 @@ void LidarMarbleDetector::plotLidarData() {
 
 void LidarMarbleDetector::onSetData(){
     plotLidarData();
-    //getLidarSegments();
+    getLidarSegments();
     //checkSegments();
     
     imshow(WINDOW_NAME, _image);
