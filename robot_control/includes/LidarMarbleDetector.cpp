@@ -7,8 +7,8 @@
 LidarMarbleDetector::LidarMarbleDetector(){}
 
 LidarMarbleDetector::LidarMarbleDetector(double *data, int size, int width, int height) {
-    namedWindow("Lidar Plot", WINDOW_NORMAL);
-    resizeWindow("Lidar Plot",_imageWidth,_imageHeight);
+    namedWindow(WINDOW_NAME, WINDOW_NORMAL);
+    resizeWindow(WINDOW_NAME,_imageWidth,_imageHeight);
     
     _imageWidth = width;
     _imageHeight = height;
@@ -252,11 +252,12 @@ void LidarMarbleDetector::plotLidarData(Mat * img) {
 }
 
 void LidarMarbleDetector::onSetData(){
-    plotLidarData(&_image);
+    //plotLidarData(&_image);
     //getLidarSegments();
     //checkSegments(&_image);
+    Mat image(2000,2000,CV_8UC3,Scalar(255,255,255));
     
-    imshow("Lidar Plot", _image);
+    imshow(WINDOW_NAME, image);
     waitKey(1);
 }
 
