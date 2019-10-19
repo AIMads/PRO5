@@ -6,7 +6,9 @@
 
 LidarMarbleDetector::LidarMarbleDetector(){}
 
-LidarMarbleDetector::LidarMarbleDetector(double *data, int size) {
+LidarMarbleDetector::LidarMarbleDetector(double *data, int size, int width, int height) {
+    _imageWidth = width;
+    _imageHeight = height;
     _size = size;
     _lidarData = new double[_size];
     setLidarData(data);
@@ -230,8 +232,9 @@ void LidarMarbleDetector::onSetData(){
     LidarSegments lidarSegments = getLidarSegments(_lidarData, NUM_DATAPTS);
     checkSegments(lidarSegments, &image);
 
-    namedWindow("Image", WINDOW_GUI_NORMAL);
-    imshow("Image", image);
+    namedWindow("Lidar Plot", WINDOW_NORMAL);
+    resizeWindow("Lidar Plot",_imageWidth,_imageHeight);
+    imshow("Lidar Plot", image);
     waitKey(1);
 }
 
