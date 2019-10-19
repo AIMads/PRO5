@@ -23,6 +23,9 @@
 #define NUM_DATAPTS 200
 #define ANGULAR_PREC FOV / NUM_DATAPTS
 #define WINDOW_NAME "Lidar Plot"
+#define IMAGE_COLS 2000
+#define IMAGE_ROWS 2000
+
 
 using namespace std;
 using namespace cv;
@@ -50,7 +53,7 @@ public:
     void checkSegments(Mat * image);
 
     void getLidarSegments();
-    void plotLidarData(Mat * image);
+    void plotLidarData();
 
     void onSetData();
     void setLidarData(double * data);
