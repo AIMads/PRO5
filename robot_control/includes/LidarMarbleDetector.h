@@ -59,6 +59,8 @@ public:
 protected:
     double * _lidarData;
     int _size;
+    
+    Mat _image;
     int _imageWidth;
     int _imageHeight;
     
