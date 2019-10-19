@@ -183,15 +183,15 @@ void LidarMarbleDetector::getLidarSegments() {
 
         if(isInRange(_lidarData[i])) {
             if(i > 0 && i < _size - 1 && norm(endPoint - prevEndPoint) < THRESHOLD){
-                segments[numSegments][pointIndex++] = prevEndPoint;
-                segments[numSegments][pointIndex] = endPoint;
+                segments[_numSegments][pointIndex++] = prevEndPoint;
+                segments[_numSegments][pointIndex] = endPoint;
                 // add prevEndPoint and endPoint to array
                 // decrease indexOfNewestElement to point to last element so it replaces it on next visit
                 // [1964,1113], [1925,1087]
                 //              [1925,1087], [1886,1063]
             } else {
                 // new segment
-                numPtsInSegment[numSegments++] = ++pointIndex;
+                numPtsInSegment[_numSegments++] = ++pointIndex;
                 pointIndex = 0;
             }
             prevEndPoint = endPoint;
