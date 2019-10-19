@@ -149,7 +149,7 @@ bool LidarMarbleDetector::checkForCircles(int numPts, Point* points){
     return false;
 }
 
-void LidarMarbleDetector::checkSegments(Mat * image){
+void LidarMarbleDetector::checkSegments(){
     for (int i = 0; i < _numSegments; ++i) {
         //cout << "SEGMENT # " << i << endl;
         if (checkForCircles(_numPtsInSegment[i], _segments[i])) {
@@ -159,7 +159,7 @@ void LidarMarbleDetector::checkSegments(Mat * image){
             auto circle = calculateCenterAndRadiusOfCircle(first, middle, last);
             //cout << "RADIUS  " << circle.radius << endl;
             if (circle.radius < MAX_RADIUS)
-                drawCircle(image, circle.center, circle.radius);
+                drawCircle(_image, circle.center, circle.radius);
         }
     }
 }
@@ -252,8 +252,8 @@ void LidarMarbleDetector::plotLidarData() {
 
 void LidarMarbleDetector::onSetData(){
     plotLidarData();
-    //getLidarSegments();
-    //checkSegments(&_image);
+    getLidarSegments();
+    checkSegments();
     
     imshow(WINDOW_NAME, _image);
     waitKey(1);

@@ -50,7 +50,7 @@ public:
     auto calculateCenterAndRadiusOfCircle(Point a, Point b, Point c);
 
     bool checkForCircles(int numPts, Point* points);
-    void checkSegments(Mat * image);
+    void checkSegments();
 
     void getLidarSegments();
     void plotLidarData();
