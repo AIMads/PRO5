@@ -230,9 +230,9 @@ void LidarMarbleDetector::onSetData(){
     LidarSegments lidarSegments = getLidarSegments(_lidarData, NUM_DATAPTS);
     checkSegments(lidarSegments, &image);
 
-    namedWindow("Image", 1);
+    namedWindow("Image", WINDOW_GUI_NORMAL);
     imshow("Image", image);
-    waitKey();
+    waitKey(1);
 }
 
 void LidarMarbleDetector::setLidarData(double *data) {
