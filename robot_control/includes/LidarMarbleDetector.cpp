@@ -259,6 +259,7 @@ void LidarMarbleDetector::onSetData(){
     
     imshow(WINDOW_NAME, image);
     waitKey(1);
+    image.release();
 }
 
 void LidarMarbleDetector::setLidarData(double *data) {
