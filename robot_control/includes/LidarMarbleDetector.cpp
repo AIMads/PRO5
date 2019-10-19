@@ -255,11 +255,10 @@ void LidarMarbleDetector::onSetData(){
     //plotLidarData(&_image);
     //getLidarSegments();
     //checkSegments(&_image);
-    Mat image(2000,2000,CV_8UC3,Scalar(255,255,255));
+    Mat image(2,2,CV_8UC3,Scalar(255,255,255));
     
     imshow(WINDOW_NAME, image);
     waitKey(1);
-    image.release();
 }
 
 void LidarMarbleDetector::setLidarData(double *data) {
