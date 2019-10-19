@@ -1,13 +1,241 @@
 //
-// Created by Sina P. Soltani on 04/10/2019.
+// Created by Sina P. Soltani on 19/10/2019.
 //
 
 #include "LidarMarbleDetector.h"
 
-LidarMarbleDetector::LidarMarbleDetector() {}
+LidarMarbleDetector::LidarMarbleDetector(){}
 
-void LidarMarbleDetector::showSignsOfLife() {
-    std::cout << "Ditto!" << std::endl;
+LidarMarbleDetector::LidarMarbleDetector(double *data, int size) {
+    _size = size;
+    _lidarData = new double[_size];
+    setLidarData(data);
 }
 
-LidarMarbleDetector::~LidarMarbleDetector() {}
+void drawCircle(Mat * img, Point center, double r){
+    circle(*img,center,r,Scalar(70,189,65),10);
+}
+
+bool isInRange(double range){
+    return range < MAX_LIDAR_RANGE;
+}
+
+double determinant(Point a, Point b){
+    return double (b.y - a.y)/(b.x - a.x);
+}
+
+double solve2LinEq(double a1, double b1, double a2, double b2){
+    return (b2 - b1)/(a1 - a2);
+}
+
+double calculateDistance(double x1, double y1, double x2, double y2){
+    return sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+}
+
+double getBiggestDiff(double * arr, int size){
+    double max = arr[0];
+    int indexOfMax = 0;
+    int indexOfMin = 0;
+    double min = arr[0];
+    for (int i = 0; i < size; ++i) {
+        if(arr[i] > max){
+            max = arr[i];
+            indexOfMax = i;
+        }
+        if(arr[i] < min){
+            min = arr[i];
+            indexOfMin = i;
+        }
+    }
+    //cout << "Max: #" << indexOfMax << " " << max << endl;
+    //cout << "Min: #" << indexOfMin << " " << min << endl;
+    return max - min;
+}
+
+void perpendicularBisector(Point a, Point b, double *slopePtr, double *interceptPtr){
+    double slope = double (b.y - a.y)/(b.x - a.x);
+    double nSlope = -1/slope;
+    Point midpoint = Point((a.x + b.x)/2,(a.y + b.y)/2);
+    double midX = double (a.x + b.x)/2;
+    double midY = double (a.y + b.y)/2;
+
+    double intercept = -nSlope * midX + midY;
+
+    *slopePtr = nSlope;
+    *interceptPtr = intercept;
+}
+
+auto calculateCenterAndRadiusOfCircle(Point a, Point b, Point c){
+
+    Point points[3] = {a, b, c};
+    double slopes[3] = {0, 0, 0};
+    double intercepts[3] = {0, 0, 0};
+
+    double slope, intercept;
+    double *slopePtr, *interceptPtr;
+    slopePtr = &slope;
+    interceptPtr = &intercept;
+
+    int perbendicularBisectorNum = 0;
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            if(i < j){
+                perpendicularBisector(points[i],points[j],slopePtr,interceptPtr);
+
+                slopes[perbendicularBisectorNum] = *slopePtr;
+                intercepts[perbendicularBisectorNum] = *interceptPtr;
+                perbendicularBisectorNum++;
+                //cout << "a = " << *slopePtr << " " << "b = " << *interceptPtr << endl;
+            }
+        }
+    }
+
+    double x = 0, y = 0, radius = 0;
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            if(i < j){
+                x = solve2LinEq(slopes[i],intercepts[i],slopes[j],intercepts[j]);
+                y = slopes[i] * x + intercepts[i];
+                //cout << "x = " << x << endl;
+                //cout << "y = " << y << endl;
+                //cout << calculateDistance(x,y,a.x,a.y) << endl;
+                //cout << calculateDistance(x,y,b.x,b.y) << endl;
+                //cout << calculateDistance(x,y,c.x,c.y) << endl;
+                radius = calculateDistance(x,y,a.x,a.y);
+            }
+        }
+    }
+
+    Point center = Point((int)round(x), (int)round(y));
+
+    struct circle {Point center; double radius;};
+    return circle{center,radius};
+}
+
+bool checkForCircles(int numPts, Point* points){
+
+    auto * slopes = new double[numPts];
+
+    if(numPts >= 3){
+        for (int i = 0; i < numPts; ++i) {
+            slopes[i] = determinant(points[0],points[numPts - 1 - i]);
+            /*if(i == 0){
+                cout << points[0] << " - " << points[numPts - 1 - i] << " => " << determinant(points[0],points[numPts - 1 - i]) << endl;
+            }*/
+        }
+
+        double maxDiff = getBiggestDiff(slopes, numPts);
+        //cout << "maxDiff: " << maxDiff << endl;
+        if(maxDiff > SLOPE_DIFF)
+            return true;
+    }
+
+    return false;
+}
+
+void checkSegments(LidarSegments lidarSegments, Mat * image){
+    for (int i = 0; i < lidarSegments.numSegments; ++i) {
+        //cout << "SEGMENT # " << i << endl;
+        if (checkForCircles(lidarSegments.numPtsInSegment[i], lidarSegments.segments[i])) {
+            Point first = lidarSegments.segments[i][0];
+            Point middle = lidarSegments.segments[i][lidarSegments.numPtsInSegment[i] / 2];
+            Point last = lidarSegments.segments[i][lidarSegments.numPtsInSegment[i] - 1];
+            auto circle = calculateCenterAndRadiusOfCircle(first, middle, last);
+            //cout << "RADIUS  " << circle.radius << endl;
+            if (circle.radius < MAX_RADIUS)
+                drawCircle(image, circle.center, circle.radius);
+        }
+    }
+}
+
+LidarSegments getLidarSegments(double * data, int numDataPoints) {
+    Mat image(2000,2000,CV_8UC3,Scalar(255,255,255));
+
+    int numSegments = 0;
+    int * numPtsInSegment = new int[NUM_DATAPTS];
+    Point ** segments = new Point*[NUM_DATAPTS];
+    for (int j = 0; j < NUM_DATAPTS; ++j) {
+        segments[j] = new Point[NUM_DATAPTS];
+    }
+    int pointIndex = 0;
+
+    Point startPoint = Point(image.cols / 2, image.rows / 2);
+    Point prevEndPoint = Point((int)(100 * data[0] * sin(ROTATION_OFFSET) + startPoint.x), (int)(100 * data[0] * cos(ROTATION_OFFSET) + startPoint.y));
+
+    for (int i = 0; i < numDataPoints; ++i) {
+
+        int distance = (int) (100 * data[i]);
+        double angle = i * ANGULAR_PREC + ROTATION_OFFSET;
+
+        Point endPoint = Point((int)(distance * sin(angle) + startPoint.x), (int)(distance * cos(angle) + startPoint.y));
+
+        if(isInRange(data[i])) {
+            if(i > 0 && i < numDataPoints - 1 && norm(endPoint - prevEndPoint) < THRESHOLD){
+                segments[numSegments][pointIndex++] = prevEndPoint;
+                segments[numSegments][pointIndex] = endPoint;
+                // add prevEndPoint and endPoint to array
+                // decrease indexOfNewestElement to point to last element so it replaces it on next visit
+                // [1964,1113], [1925,1087]
+                //              [1925,1087], [1886,1063]
+            } else {
+                numPtsInSegment[numSegments++] = ++pointIndex;
+                pointIndex = 0;
+            }
+            prevEndPoint = endPoint;
+        }
+    }
+    /*
+    for (int i = 0; i < numSegments; ++i) {
+        cout << "Segment #" << i << endl;
+        for (int j = 0; j < numPtsInSegment[i]; ++j) {
+            cout << segments[i][j] << endl;
+        }
+        cout << endl;
+    }*/
+
+    return {numSegments, numPtsInSegment, segments};
+}
+
+Mat plotLidarData(double * data, int numDataPoints) {
+    Mat image(2000,2000,CV_8UC3,Scalar(255,255,255));
+    Scalar color = {0,0,0};
+    Point startPoint = Point(image.cols / 2, image.rows / 2);
+    Point prevEndPoint = Point((int)(100 * data[0] * sin(ROTATION_OFFSET) + startPoint.x), (int)(100 * data[0] * cos(ROTATION_OFFSET) + startPoint.y));
+
+    for (int i = 0; i < numDataPoints; ++i) {
+
+        int distance = (int) (100 * data[i]);
+        double angle = i * ANGULAR_PREC + ROTATION_OFFSET;
+
+        Point endPoint = Point((int)(distance * sin(angle) + startPoint.x), (int)(distance * cos(angle) + startPoint.y));
+
+        /*if(true || isInRange(data[i])) {*/
+        if(i > 0 && norm(endPoint - prevEndPoint) < THRESHOLD){
+            line(image, prevEndPoint, endPoint, color,5);
+            //cout << prevEndPoint << endPoint << endl;
+        } else {
+            //cout << endl << "New Segment" << endl;
+        }
+
+        circle(image, endPoint, 1, color, 5);
+        line(image,startPoint,endPoint,color);
+        prevEndPoint = endPoint;
+        //}
+    }
+    return image;
+}
+
+void LidarMarbleDetector::onSetData(){
+    Mat image = plotLidarData(_lidarData, NUM_DATAPTS);
+    LidarSegments lidarSegments = getLidarSegments(_lidarData, NUM_DATAPTS);
+    checkSegments(lidarSegments, &image);
+
+    namedWindow("Image", 1);
+    imshow("Image", image);
+    waitKey();
+}
+
+void LidarMarbleDetector::setLidarData(double *data) {
+    _lidarData = data;
+    onSetData();
+}
