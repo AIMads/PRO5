@@ -38,7 +38,7 @@ public:
     LidarMarbleDetector();
     LidarMarbleDetector(double * data, int size, int width, int height);
 
-    void drawCircle(Mat * img, Point center, double r);
+    void drawCircle(Point center, double r);
 
     bool isInRange(double range);
     double determinant(Point a, Point b);
