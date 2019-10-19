@@ -50,7 +50,7 @@ public:
     bool checkForCircles(int numPts, Point* points);
     void checkSegments(LidarSegments lidarSegments, Mat * image);
 
-    LidarSegments getLidarSegments(double * data, int numDataPoints);
+    LidarSegments getLidarSegments();
     Mat plotLidarData();
 
     void onSetData();

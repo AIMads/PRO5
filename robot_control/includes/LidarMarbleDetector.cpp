@@ -150,7 +150,7 @@ void LidarMarbleDetector::checkSegments(LidarSegments lidarSegments, Mat * image
     }
 }
 
-LidarSegments LidarMarbleDetector::getLidarSegments(double * data, int numDataPoints) {
+LidarSegments LidarMarbleDetector::getLidarSegments() {
     Mat image(2000,2000,CV_8UC3,Scalar(255,255,255));
 
     int numSegments = 0;
@@ -162,17 +162,17 @@ LidarSegments LidarMarbleDetector::getLidarSegments(double * data, int numDataPo
     int pointIndex = 0;
 
     Point startPoint = Point(image.cols / 2, image.rows / 2);
-    Point prevEndPoint = Point((int)(100 * data[0] * sin(ROTATION_OFFSET) + startPoint.x), (int)(100 * data[0] * cos(ROTATION_OFFSET) + startPoint.y));
+    Point prevEndPoint = Point((int)(100 * _lidarData[0] * sin(ROTATION_OFFSET) + startPoint.x), (int)(100 * _lidarData[0] * cos(ROTATION_OFFSET) + startPoint.y));
 
-    for (int i = 0; i < numDataPoints; ++i) {
+    for (int i = 0; i < _size; ++i) {
 
-        int distance = (int) (100 * data[i]);
+        int distance = (int) (100 * _lidarData[i]);
         double angle = i * ANGULAR_PREC + ROTATION_OFFSET;
 
         Point endPoint = Point((int)(distance * sin(angle) + startPoint.x), (int)(distance * cos(angle) + startPoint.y));
 
-        if(isInRange(data[i])) {
-            if(i > 0 && i < numDataPoints - 1 && norm(endPoint - prevEndPoint) < THRESHOLD){
+        if(isInRange(_lidarData[i])) {
+            if(i > 0 && i < _size - 1 && norm(endPoint - prevEndPoint) < THRESHOLD){
                 segments[numSegments][pointIndex++] = prevEndPoint;
                 segments[numSegments][pointIndex] = endPoint;
                 // add prevEndPoint and endPoint to array
@@ -180,6 +180,7 @@ LidarSegments LidarMarbleDetector::getLidarSegments(double * data, int numDataPo
                 // [1964,1113], [1925,1087]
                 //              [1925,1087], [1886,1063]
             } else {
+                // new segment
                 numPtsInSegment[numSegments++] = ++pointIndex;
                 pointIndex = 0;
             }
@@ -229,8 +230,13 @@ Mat LidarMarbleDetector::plotLidarData() {
 
 void LidarMarbleDetector::onSetData(){
     Mat image = plotLidarData();
-    LidarSegments lidarSegments = getLidarSegments(_lidarData, NUM_DATAPTS);
+    LidarSegments lidarSegments = getLidarSegments();
     checkSegments(lidarSegments, &image);
+    
+    for(int i = 0; i < NUM_DATAPTS; ++i) {
+        delete [] lidarSegments.segments[i];
+    }
+    delete [] lidarSegments.segments;
 
     namedWindow("Lidar Plot", WINDOW_NORMAL);
     resizeWindow("Lidar Plot",_imageWidth,_imageHeight);
