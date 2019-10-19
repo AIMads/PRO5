@@ -29,7 +29,7 @@ LidarMarbleDetector::LidarMarbleDetector(double *data, int size, int width, int 
 }
 
 void LidarMarbleDetector::drawCircle(Point center, double r, bool isTarget = false){
-    circle(_image,center,r, ((isTarget) ? Scalar(70,189,65) : Scalar(95,176,215)),10);
+    circle(_image,center,r, ((isTarget) ? Scalar(70,189,65) : Scalar(215,176,95)),10);
 }
 
 bool LidarMarbleDetector::isInRange(double range){
@@ -184,6 +184,7 @@ void LidarMarbleDetector::checkSegments(){
     }
     if(numCircles > 0){
         int indexOfTargetCircle = getIndexOfTargetCircle(circleCenters, numCircles);
+        cout << "Found circles! Index of target = " << indexOfTargetCircle << endl;
         drawCircle(circleCenters[indexOfTargetCircle],circleRadii[indexOfTargetCircle],true);
     }
     delete [] circleCenters;
