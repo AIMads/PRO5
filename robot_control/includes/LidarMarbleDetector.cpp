@@ -238,6 +238,7 @@ void LidarMarbleDetector::onSetData(){
     resizeWindow("Lidar Plot",_imageWidth,_imageHeight);
     imshow("Lidar Plot", _image);
     waitKey(1);
+    destroyWindow("Lidar Plot");
 }
 
 void LidarMarbleDetector::setLidarData(double *data) {
