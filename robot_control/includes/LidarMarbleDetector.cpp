@@ -12,27 +12,27 @@ LidarMarbleDetector::LidarMarbleDetector(double *data, int size) {
     setLidarData(data);
 }
 
-void drawCircle(Mat * img, Point center, double r){
+void LidarMarbleDetector::drawCircle(Mat * img, Point center, double r){
     circle(*img,center,r,Scalar(70,189,65),10);
 }
 
-bool isInRange(double range){
+bool LidarMarbleDetector::isInRange(double range){
     return range < MAX_LIDAR_RANGE;
 }
 
-double determinant(Point a, Point b){
+double LidarMarbleDetector::determinant(Point a, Point b){
     return double (b.y - a.y)/(b.x - a.x);
 }
 
-double solve2LinEq(double a1, double b1, double a2, double b2){
+double LidarMarbleDetector::solve2LinEq(double a1, double b1, double a2, double b2){
     return (b2 - b1)/(a1 - a2);
 }
 
-double calculateDistance(double x1, double y1, double x2, double y2){
+double LidarMarbleDetector::calculateDistance(double x1, double y1, double x2, double y2){
     return sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
 }
 
-double getBiggestDiff(double * arr, int size){
+double LidarMarbleDetector::getBiggestDiff(double * arr, int size){
     double max = arr[0];
     int indexOfMax = 0;
     int indexOfMin = 0;
@@ -52,7 +52,7 @@ double getBiggestDiff(double * arr, int size){
     return max - min;
 }
 
-void perpendicularBisector(Point a, Point b, double *slopePtr, double *interceptPtr){
+void LidarMarbleDetector::perpendicularBisector(Point a, Point b, double *slopePtr, double *interceptPtr){
     double slope = double (b.y - a.y)/(b.x - a.x);
     double nSlope = -1/slope;
     Point midpoint = Point((a.x + b.x)/2,(a.y + b.y)/2);
@@ -65,7 +65,7 @@ void perpendicularBisector(Point a, Point b, double *slopePtr, double *intercept
     *interceptPtr = intercept;
 }
 
-auto calculateCenterAndRadiusOfCircle(Point a, Point b, Point c){
+auto LidarMarbleDetector::calculateCenterAndRadiusOfCircle(Point a, Point b, Point c){
 
     Point points[3] = {a, b, c};
     double slopes[3] = {0, 0, 0};
@@ -112,7 +112,7 @@ auto calculateCenterAndRadiusOfCircle(Point a, Point b, Point c){
     return circle{center,radius};
 }
 
-bool checkForCircles(int numPts, Point* points){
+bool LidarMarbleDetector::checkForCircles(int numPts, Point* points){
 
     auto * slopes = new double[numPts];
 
@@ -133,7 +133,7 @@ bool checkForCircles(int numPts, Point* points){
     return false;
 }
 
-void checkSegments(LidarSegments lidarSegments, Mat * image){
+void LidarMarbleDetector::checkSegments(LidarSegments lidarSegments, Mat * image){
     for (int i = 0; i < lidarSegments.numSegments; ++i) {
         //cout << "SEGMENT # " << i << endl;
         if (checkForCircles(lidarSegments.numPtsInSegment[i], lidarSegments.segments[i])) {
@@ -148,7 +148,7 @@ void checkSegments(LidarSegments lidarSegments, Mat * image){
     }
 }
 
-LidarSegments getLidarSegments(double * data, int numDataPoints) {
+LidarSegments LidarMarbleDetector::getLidarSegments(double * data, int numDataPoints) {
     Mat image(2000,2000,CV_8UC3,Scalar(255,255,255));
 
     int numSegments = 0;
@@ -196,7 +196,7 @@ LidarSegments getLidarSegments(double * data, int numDataPoints) {
     return {numSegments, numPtsInSegment, segments};
 }
 
-Mat plotLidarData(double * data, int numDataPoints) {
+Mat LidarMarbleDetector::plotLidarData(double * data, int numDataPoints) {
     Mat image(2000,2000,CV_8UC3,Scalar(255,255,255));
     Scalar color = {0,0,0};
     Point startPoint = Point(image.cols / 2, image.rows / 2);
