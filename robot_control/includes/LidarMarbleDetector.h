@@ -25,6 +25,7 @@
 #define WINDOW_NAME "Lidar Plot"
 #define IMAGE_COLS 2000
 #define IMAGE_ROWS 2000
+#define NO_TARGET 3
 
 using namespace std;
 using namespace cv;
@@ -46,14 +47,15 @@ public:
     auto calculateCenterAndRadiusOfCircle(Point a, Point b, Point c);
 
     int getIndexOfTargetCircle(Point * centers, int size);
+    double getDirectionOfTargetCircle(Point circle);
     bool checkForCircles(int numPts, Point* points);
-    void checkSegments();
+    double checkSegments();
 
     void getLidarSegments();
     void plotLidarData();
 
-    void onSetData();
-    void setLidarData(double * data);
+    double onSetData();
+    double setLidarData(double * data);
 
     ~LidarMarbleDetector();
 

@@ -142,6 +142,42 @@ int LidarMarbleDetector::getIndexOfTargetCircle(Point * centers, int size){
     return indexOfTarget;
 }
 
+double LidarMarbleDetector::getDirectionOfTargetCircle(Point circle){
+    double targetDir = NO_TARGET;
+    
+    Point robot = Point(IMAGE_COLS / 2, IMAGE_ROWS / 2);
+    Point ref = Point((int)(100 * _lidarData[0] * sin(ROTATION_OFFSET) + robot.x), (int)(100 * _lidarData[0] * cos(ROTATION_OFFSET) + robot.y));
+
+    ref -= robot;
+    circle -= robot;
+    
+    double magRef = sqrt(ref.x * ref.x + ref.y * ref.y);
+    double magCircle = sqrt(circle.x * circle.x + circle.y * circle.y);
+    
+    double unitRefX = ref.x / magRef;
+    double unitRefY = ref.y / magRef;
+    
+    double unitOppositeRefX = -1 * unitRefX;
+    double unitOppositeRefY = -1 * unitRefY;
+    
+    double unitCircleX = circle.x / magCircle;
+    double unitCircleY = circle.y / magCircle;
+    
+    double magUnitRef = sqrt(unitRefX * unitRefX + unitRefY * unitRefY);
+    double magUnitCirle = sqrt(unitCircleX * unitCircleX + unitCircleY * unitCircleY);
+    double unitRefAndCircleDotProduct = unitRefX * unitCircleX + unitRefY * unitCircleY;
+    
+    targetDir = acos( unitRefAndCircleDotProduct / (magUnitRef * magUnitCirle) );
+    
+    if (unitCircleY > unitOppositeRefY && unitCircleX < 0) {
+        targetDir = 2 * M_PI - targetDir;
+    }
+    
+    targetDir -= (double) 130/180 * M_PI; // Offset of -2.27 rad
+    
+    return targetDir;
+}
+
 bool LidarMarbleDetector::checkForCircles(int numPts, Point* points){
 
     auto * slopes = new double[numPts];
@@ -163,8 +199,8 @@ bool LidarMarbleDetector::checkForCircles(int numPts, Point* points){
     return false;
 }
 
-void LidarMarbleDetector::checkSegments(){
-    
+double LidarMarbleDetector::checkSegments(){
+    double target = NO_TARGET;
     int numCircles = 0;
     Point * circleCenters = new Point[_size];
     double * circleRadii = new double[_size];
@@ -186,10 +222,12 @@ void LidarMarbleDetector::checkSegments(){
     }
     if(numCircles > 0){
         int indexOfTargetCircle = getIndexOfTargetCircle(circleCenters, numCircles);
+        target = getDirectionOfTargetCircle(circleCenters[indexOfTargetCircle]);
         drawCircle(circleCenters[indexOfTargetCircle],circleRadii[indexOfTargetCircle],true);
     }
     delete [] circleCenters;
     delete [] circleRadii;
+    return target;
 }
 
 void LidarMarbleDetector::getLidarSegments() {
@@ -262,18 +300,19 @@ void LidarMarbleDetector::plotLidarData() {
     }
 }
 
-void LidarMarbleDetector::onSetData(){
+double LidarMarbleDetector::onSetData(){
     plotLidarData();
     getLidarSegments();
-    checkSegments();
+    double target = checkSegments();
     
     imshow(WINDOW_NAME, _image);
     waitKey(1);
+    return target;
 }
 
-void LidarMarbleDetector::setLidarData(double *data) {
+double LidarMarbleDetector::setLidarData(double *data) {
     _lidarData = data;
-    onSetData();
+    return onSetData();
 }
 
 LidarMarbleDetector::~LidarMarbleDetector(){}

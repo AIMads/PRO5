@@ -9,8 +9,9 @@
 #include "includes/LidarMarbleDetector.h"
 #include "includes/ImageMarbleDetector.h"
 
+#define NUM_DATA_POINTS 200
 
-static boost::mutex mutex;
+double * lidarData = new double[NUM_DATA_POINTS];
 
 void statCallback(ConstWorldStatisticsPtr &_msg) {
     (void)_msg;
@@ -85,7 +86,7 @@ void lidarCallback(ConstLaserScanStampedPtr &msg) {
      200.5f - range * px_per_m * std::sin(angle));
      cv::line(im, startpt * 16, endpt * 16, cv::Scalar(255, 255, 255, 255), 1,
      cv::LINE_AA, 4);
-
+         lidarData[i] = range;
          //std::cout << angle << " " << range << std::endl;
      }
      cv::circle(im, cv::Point(200, 200), 2, cv::Scalar(0, 0, 255));
@@ -134,15 +135,16 @@ int main(int _argc, char **_argv) {
 
     float speed = 0.1;
     float dir = 0.0;
+    float targetDir = NO_TARGET;
 
     // Object init
     FuzzyController fc;
-    LidarMarbleDetector lmd;
+    LidarMarbleDetector lmd = LidarMarbleDetector(lidarData,NUM_DATA_POINTS,400,400);
     ImageMarbleDetector imd;
 
-    fc.showSignsOfLife();
-    lmd.showSignsOfLife();
-    imd.showSignsOfLife();
+    //fc.showSignsOfLife();
+    //lmd.showSignsOfLife();
+    //imd.showSignsOfLife();
 
     // Loop
     while (true) {
@@ -151,7 +153,8 @@ int main(int _argc, char **_argv) {
 
 
         // Change speed and direction based on fuzzycontrol
-
+        targetDir = lmd.setLidarData(lidarData);
+        std::cout << "TargetDir: " << targetDir << std::endl;
 
         // Generate a pose
         ignition::math::Pose3d pose(double(speed), 0, 0, 0, 0, double(dir));
