@@ -15,7 +15,7 @@ CXX           = g++
 DEFINES       = 
 CFLAGS        = -pipe -O2 -std=c++11 -std=c++14 -pthread -std=c++11 -std=c++14 -pthread -Wall -W -fPIC $(DEFINES)
 CXXFLAGS      = -pipe -O2 -std=gnu++11 -std=c++11 -std=c++14 -pthread -std=c++11 -std=c++14 -pthread -Wall -W -fPIC $(DEFINES)
-INCPATH       = -I. -I../../fuzzylite/fuzzylite -I/usr/include/gazebo-9 -I/usr/include/sdformat-6.2 -I/usr/include/ignition/transport4 -I/usr/include/ignition/msgs1 -I/usr/include/ignition/fuel_tools1 -I/usr/include/x86_64-linux-gnu -I/usr/lib/x86_64-linux-gnu/libzip/include -I/usr/include/ignition/common1 -I/usr/include/ignition/math4 -I/usr/include/uuid -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/local/include/opencv -I/usr/local/include -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++
+INCPATH       = -I. -Iincludes/fuzzylite-6.0/fuzzylite -I/usr/include/gazebo-9 -I/usr/include/sdformat-6.2 -I/usr/include/ignition/transport4 -I/usr/include/ignition/msgs1 -I/usr/include/ignition/fuel_tools1 -I/usr/include/x86_64-linux-gnu -I/usr/lib/x86_64-linux-gnu/libzip/include -I/usr/include/ignition/common1 -I/usr/include/ignition/math4 -I/usr/include/uuid -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/local/include/opencv -I/usr/local/include -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++
 QMAKE         = /usr/lib/qt5/bin/qmake
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -38,7 +38,7 @@ DISTNAME      = Linuxrobot_control1.0.0
 DISTDIR = /home/mads/PRO5/robot_control/.tmp/Linuxrobot_control1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-O1
-LIBS          = $(SUBLIBS) -L/home/mads/fuzzylite/fuzzylite/release/bin -lfuzzylite-static -L/usr/lib/x86_64-linux-gnu/gazebo-9/plugins -Wl,-rpath,/usr/lib/x86_64-linux-gnu/gazebo-9/plugins -lgazebo_transport -lgazebo_physics -lgazebo_sensors -lgazebo_rendering -lgazebo_gui -lgazebo_client -lgazebo_msgs -lgazebo_common -lgazebo -lboost_thread -lboost_system -lboost_filesystem -lboost_program_options -lboost_regex -lboost_iostreams -lboost_date_time -lboost_chrono -lboost_atomic -lsdformat -ltbb -latomic -lignition-transport4 -luuid -lignition-msgs1 -lprotobuf -pthread -lpthread -lignition-math4 -lignition-fuel_tools1 -L/usr/local/lib -lopencv_stitching -lopencv_superres -lopencv_videostab -lopencv_aruco -lopencv_bgsegm -lopencv_bioinspired -lopencv_ccalib -lopencv_dnn_objdetect -lopencv_dpm -lopencv_face -lopencv_photo -lopencv_freetype -lopencv_fuzzy -lopencv_hfs -lopencv_img_hash -lopencv_line_descriptor -lopencv_optflow -lopencv_reg -lopencv_rgbd -lopencv_saliency -lopencv_stereo -lopencv_structured_light -lopencv_phase_unwrapping -lopencv_surface_matching -lopencv_tracking -lopencv_datasets -lopencv_text -lopencv_dnn -lopencv_plot -lopencv_xfeatures2d -lopencv_shape -lopencv_video -lopencv_ml -lopencv_ximgproc -lopencv_xobjdetect -lopencv_objdetect -lopencv_calib3d -lopencv_features2d -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs -lopencv_flann -lopencv_xphoto -lopencv_imgproc -lopencv_core 
+LIBS          = $(SUBLIBS) -L/home/mads/PRO5/robot_control/includes/fuzzylite-6.0/fuzzylite/release/bin -lfuzzylite-static -L/usr/lib/x86_64-linux-gnu/gazebo-9/plugins -Wl,-rpath,/usr/lib/x86_64-linux-gnu/gazebo-9/plugins -lgazebo_transport -lgazebo_physics -lgazebo_sensors -lgazebo_rendering -lgazebo_gui -lgazebo_client -lgazebo_msgs -lgazebo_common -lgazebo -lboost_thread -lboost_system -lboost_filesystem -lboost_program_options -lboost_regex -lboost_iostreams -lboost_date_time -lboost_chrono -lboost_atomic -lsdformat -ltbb -latomic -lignition-transport4 -luuid -lignition-msgs1 -lprotobuf -pthread -lpthread -lignition-math4 -lignition-fuel_tools1 -L/usr/local/lib -lopencv_stitching -lopencv_superres -lopencv_videostab -lopencv_aruco -lopencv_bgsegm -lopencv_bioinspired -lopencv_ccalib -lopencv_dnn_objdetect -lopencv_dpm -lopencv_face -lopencv_photo -lopencv_freetype -lopencv_fuzzy -lopencv_hfs -lopencv_img_hash -lopencv_line_descriptor -lopencv_optflow -lopencv_reg -lopencv_rgbd -lopencv_saliency -lopencv_stereo -lopencv_structured_light -lopencv_phase_unwrapping -lopencv_surface_matching -lopencv_tracking -lopencv_datasets -lopencv_text -lopencv_dnn -lopencv_plot -lopencv_xfeatures2d -lopencv_shape -lopencv_video -lopencv_ml -lopencv_ximgproc -lopencv_xobjdetect -lopencv_objdetect -lopencv_calib3d -lopencv_features2d -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs -lopencv_flann -lopencv_xphoto -lopencv_imgproc -lopencv_core 
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -810,13 +810,13 @@ FuzzyController.o: includes/FuzzyController.cpp includes/fl/Headers.h \
 		includes/fl/factory/TNorm.h \
 		includes/fl/factory/Term.h \
 		includes/fl/Operation.h \
-		../../fuzzylite/fuzzylite/fl/fuzzylite.h \
-		../../fuzzylite/fuzzylite/fl/Exception.h \
-		../../fuzzylite/fuzzylite/fl/defuzzifier/Defuzzifier.h \
-		../../fuzzylite/fuzzylite/fl/Complexity.h \
-		../../fuzzylite/fuzzylite/fl/norm/Norm.h \
-		../../fuzzylite/fuzzylite/fl/norm/SNorm.h \
-		../../fuzzylite/fuzzylite/fl/norm/TNorm.h \
+		includes/fuzzylite-6.0/fuzzylite/fl/fuzzylite.h \
+		includes/fuzzylite-6.0/fuzzylite/fl/Exception.h \
+		includes/fuzzylite-6.0/fuzzylite/fl/defuzzifier/Defuzzifier.h \
+		includes/fuzzylite-6.0/fuzzylite/fl/Complexity.h \
+		includes/fuzzylite-6.0/fuzzylite/fl/norm/Norm.h \
+		includes/fuzzylite-6.0/fuzzylite/fl/norm/SNorm.h \
+		includes/fuzzylite-6.0/fuzzylite/fl/norm/TNorm.h \
 		includes/fl/factory/Activation.h \
 		includes/fl/factory/CloningFactory.h \
 		includes/fl/factory/FactoryManager.h \
@@ -882,8 +882,8 @@ FuzzyController.o: includes/FuzzyController.cpp includes/fl/Headers.h \
 		includes/fl/term/Cosine.h \
 		includes/fl/term/Discrete.h \
 		includes/fl/term/Function.h \
-		../../fuzzylite/fuzzylite/fl/term/Term.h \
-		../../fuzzylite/fuzzylite/fl/Operation.h \
+		includes/fuzzylite-6.0/fuzzylite/fl/term/Term.h \
+		includes/fuzzylite-6.0/fuzzylite/fl/Operation.h \
 		includes/fl/term/Gaussian.h \
 		includes/fl/term/GaussianProduct.h \
 		includes/fl/term/Linear.h \

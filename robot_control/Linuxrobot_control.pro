@@ -9,7 +9,10 @@ SOURCES += includes/ImageMarbleDetector.cpp
 
 QT_CONFIG -= no-pkg-config
 CONFIG += link_pkgconfig
-LIBS += -L/home/mads/fuzzylite/fuzzylite/release/bin -lfuzzylite-static
-INCLUDEPATH += "/home/mads/fuzzylite/fuzzylite"
+#LIBS += -L/home/mads/fuzzylite/fuzzylite/release/bin -lfuzzylite-static
+LIBS += -L$$PWD/includes/fuzzylite-6.0/fuzzylite/release/bin -lfuzzylite-static 
+
+#INCLUDEPATH += "/home/mads/fuzzylite/fuzzylite"
+INCLUDEPATH += "$$PWD/includes/fuzzylite-6.0/fuzzylite"
 PKGCONFIG += gazebo
 PKGCONFIG += opencv
