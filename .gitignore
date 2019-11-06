@@ -7,4 +7,6 @@ marble_contact_plugin/
 robot_control/Linuxrobot_control
 robot_control/Macrobot_control
 robot_control/Makefile
+robot_control/includes/fl
+robot_control/includes/fuzzylite-6.0
 .DS_Store

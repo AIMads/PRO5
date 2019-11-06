@@ -16,5 +16,8 @@ mac {
   PKG_CONFIG = /usr/local/bin/pkg-config
 }
 
+LIBS += -L$$PWD/includes/fuzzylite-6.0/fuzzylite/release/bin -lfuzzylite-static 
+INCLUDEPATH += "$$PWD/includes/fuzzylite-6.0/fuzzylite"
+
 PKGCONFIG += gazebo
 PKGCONFIG += opencv4
