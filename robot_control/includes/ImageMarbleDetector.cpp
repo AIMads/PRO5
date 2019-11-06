@@ -415,8 +415,8 @@ int ImageMarbleDetector::segmentIMG(Mat* img, int xsegments, int ysegments, int 
 	int xlen = img->cols / xsegments;
 	int ylen = img->rows / ysegments;
 	int whitestsegment = 0;
-	int xcomofwhitest = -999;
-	int ycomofwhitest = -999;
+	int xcomofwhitest = -99;
+	int ycomofwhitest = -99;
 	int rad = 1;
 	for (int segy = 0; segy < ysegments; segy++)
 	{
@@ -499,7 +499,7 @@ float ImageMarbleDetector::optimizedCIM(Mat* img, bool draw)
 	removeOutliers(&cImg, 5);
 	segmentIMG(&cImg);			//updates int array coms with: xcom, ycom, radius
 
-	float reply = coms[0] / cImg.cols;
+	float reply = (coms[0] / cImg.cols)*(2*0.2724)-0.2724;
 
 	if (draw)
 	{
