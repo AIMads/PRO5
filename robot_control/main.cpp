@@ -12,7 +12,7 @@
 
 double * lidarData = new double[NUM_DATA_POINTS];
 
-double * lidarData = new double[NUM_DATA_POINTS];
+Mat image;
 
 void statCallback(ConstWorldStatisticsPtr &_msg) {
     (void)_msg;
@@ -46,7 +46,10 @@ void cameraCallback(ConstImageStampedPtr &msg) {
     const char *data = msg->image().data().c_str();
     cv::Mat im(int(height), int(width), CV_8UC3, const_cast<char *>(data));
 
+    image = im.clone();
+
     cv::cvtColor(im, im, cv::COLOR_RGB2BGR);
+
     /*
     mutex.lock();
     cv::imshow("camera", im);
@@ -141,6 +144,7 @@ int main(int _argc, char **_argv) {
     FuzzyController fc;
     LidarMarbleDetector lmd = LidarMarbleDetector(lidarData,NUM_DATA_POINTS,400,400);
     ImageMarbleDetector imd;
+    
 
     // Loop
     while (true) {
@@ -152,9 +156,15 @@ int main(int _argc, char **_argv) {
 
 
         // Change speed and direction based on fuzzycontrol
+
         targetDir = lmd.setLidarData(lidarData);
         std::cout << "TargetDir: " << targetDir << std::endl;
 
+        if(targetDir != 3)
+        {
+            std::cout << imd.optimizedCIM(&image,false) << std::endl;  
+            dir = -targetDir;
+        }
         
         // Generate a pose
         ignition::math::Pose3d pose(double(speed), 0, 0, 0, 0, double(dir));
