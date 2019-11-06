@@ -136,9 +136,11 @@ int main(int _argc, char **_argv) {
     worldPublisher->WaitForConnection();
     worldPublisher->Publish(controlMessage);
 
-    float speed = 0.1;
+    float speed = 0.0;
     float dir = 0.0;
     float targetDir = NO_TARGET;
+
+    bool imageConfirmed = false;
 
     // Object init
     FuzzyController fc;
@@ -162,8 +164,16 @@ int main(int _argc, char **_argv) {
 
         if(targetDir != 3)
         {
-            std::cout << imd.optimizedCIM(&image,false) << std::endl;  
             dir = -targetDir;
+        }
+        if(dir == -targetDir && !imageConfirmed){
+            float imagedir = imd.optimizedCIM(&image,false);
+            imageConfirmed = false;
+            if(std::abs(imagedir) < 12 * 2.27 / 100){
+                dir = -targetDir;
+                imageConfirmed = true;
+                std::cout << "Image confirmed!" << std::endl;
+            }
         }
         
         // Generate a pose
