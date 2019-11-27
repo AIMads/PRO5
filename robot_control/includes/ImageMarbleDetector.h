@@ -9,18 +9,23 @@
 using namespace std;
 using namespace cv;
 
+
+struct MarbleParameters { int* coms; int amount; bool noBall = false; };
+struct Marbles { int xcom = 0; int significance = 0; };
+struct Circles { Point center; int rad =-1; };
+
+
+constexpr double IMAGEXANGLE = 0.5448;
+
 class ImageMarbleDetector {
 public:
 	ImageMarbleDetector();
 	void showSignsOfLife();
-	float circlesInImage(Mat* img, bool draw);
-	float optimizedCIM(Mat* img, bool draw);
-
+	double optimizedCIM(Mat* img, bool draw=false);
 	~ImageMarbleDetector();
 
 
-
-protected:
+private:
 	int whitepixels = 0;
 	int floorcolor;
 	int pixelcolor; int kernelcolor;
@@ -29,7 +34,8 @@ protected:
 	int lastx; int lasty;
 	int coms[3];
 
-	bool isPixelInImage(Mat* image, int row, int col);
+
+	//Rotating mask filter
 	double* calculateAverages(int listOfRGBs[9][3]);
 	double calculateAverageVariance(int listOfRGBs[9][3]);
 	int indexOfSmallestInList(double list[], int size);
@@ -37,20 +43,23 @@ protected:
 	Mat rotatingMaskFilter(Mat* img);
 
 
+	//Preprocessing
 	void removeFloors(Mat* img);
 	void removeOutliers(Mat* img, int minblacks);
-	void drawEdges(Mat* img);
-	void colorPixel(Mat* img, int x, int y, int color);
+	void removeInsignificant(Mat* img);
 	void removeShades(Mat* img);
+
+	//Helper functions	
+	void colorPixel(Mat* img, int x, int y, int color);
 	int imAt(Mat* img, int x, int y);
+	bool isPixelInImage(Mat* image, int row, int col);
 
 
-	//Experimental
+	//Marblefinder
 	void shineMarker(Mat* img);
-	int segmentIMG(Mat* img, int xsegments = 12, int ysegments = 12, int prevcom=999);
-
-	int muddify(Mat* img);	//Returns # of white pixels
-	float** pointify(Mat* img, int whitepixels);
+	Marbles *segmentsCOM(int* xvals, int points, int segments, int width);
+	Circles* defineCircles(Mat* img, Marbles *marbles, int size);
+	Circles* findParameters(Mat* img);
 };
 
 

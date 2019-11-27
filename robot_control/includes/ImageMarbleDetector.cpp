@@ -1,4 +1,4 @@
-#include "ImageMarbleDetector.h"
+﻿#include "ImageMarbleDetector.h"
 
 
 
@@ -177,8 +177,44 @@ void ImageMarbleDetector::colorPixel(Mat* img, int x, int y, int color)
 	return;
 }
 
+void ImageMarbleDetector::removeInsignificant(Mat* img) {
+	int whiteneightbors = 0;
+	for (int y = 0; y < img->rows; y++)
+	{
+		for (int x = 0; x < img->cols; x++)
+		{
+			pixelcolor = img->at<uchar>(y, x);
+			if (pixelcolor == 255)	
+			{
+				for (int yoff = -1; yoff < 2; yoff++)
+				{
+					for (int xoff = -1; xoff < 2; xoff++)
+					{
+						xpos = x + xoff;
+						ypos = y + yoff;
+						if (xpos > 0 && ypos > 0 && xpos < img->cols && ypos < img->rows )
+						{
+							if (!(xpos == 0 && ypos == 0)) {
+								kernelcolor = img->at<uchar>(ypos, xpos);
+								if (kernelcolor == 255)
+								{
+									whiteneightbors++;
+								}
+							}
+							
+						}
+					}
+				}
 
-
+				if (whiteneightbors < 5)
+				{
+					img->at<uchar>(y, x) = 0;
+				}
+				whiteneightbors = 0;
+			}
+		}
+	}
+}
 int ImageMarbleDetector::imAt(Mat* img, int x, int y)
 {
 	return img->at<uchar>(y, x);
@@ -197,61 +233,6 @@ void ImageMarbleDetector::removeShades(Mat* img)
 	}
 }
 
-void ImageMarbleDetector::drawEdges(Mat* img)
-{
-	for (int y = 0; y < img->rows; y++)
-	{
-		for (int x = 0; x < img->cols; x++)
-		{
-			pixelcolor = img->at<uchar>(y, x);
-			if (pixelcolor != 0)	//No need to fill already black ones
-			{
-				for (int yoff = -1; yoff < 2; yoff++)
-				{
-					for (int xoff = -1; xoff < 2; xoff++)
-					{
-						xpos = x + xoff;
-						ypos = y + yoff;
-
-						if (xpos != lastx and ypos != lasty)
-						{
-							if (xpos > 0 && ypos > 0 && xpos < img->cols && ypos < img->rows)
-							{
-								kernelcolor = img->at<uchar>(ypos, xpos);
-								if (kernelcolor == 0)
-								{
-									if (yoff == 0 && xoff == 0)
-									{
-										//Do nothing
-
-									}
-									else
-									{
-										img->at<uchar>(y, x) = 255;
-										//points[p_index][0] = x;
-										//points[p_index][1] = y;
-										//p_index++;
-										goto breakkernel;
-									}
-
-									adjecentblacks++;
-								}
-							}
-						}
-
-					}
-				}
-				//img->at<uchar>(y, x) = 0;		//In case no adjecent black was found, we are not at edge
-
-
-			breakkernel: {}
-				lastx = x; lasty = y;
-
-			}
-		}
-	}
-	//outlineShapes(img);
-}
 void ImageMarbleDetector::removeFloors(Mat* img)
 {
 	//cout << "Rows: " << img->rows << "   Cols: " << img->cols << endl;
@@ -285,38 +266,19 @@ Mat ImageMarbleDetector::rotatingMaskFilter(Mat* image) {
 	return filteredImage;
 }
 
-
 void ImageMarbleDetector::shineMarker(Mat* img)
 {
-	for (int y = img->rows - 1; y > 0; y--)
+	for (int y = img->rows - 1; y > 0+1; y--)
 	{
 		for (int x = 0; x < img->cols; x++)
 		{
 			pixelcolor = img->at<uchar>(y, x);
 			if (pixelcolor != 255 && pixelcolor != 0)	//No need to fill already black ones
 			{
-				for (int yoff = -1; yoff < 1; yoff++)		//2x3 kernel!!!!
-				{
-					for (int xoff = -1; xoff < 2; xoff++)
-					{
-						xpos = x + xoff;
-						ypos = y + yoff;
-						if (xpos > 0 && ypos > 0 && xpos < img->cols && ypos < img->rows)
-						{
-							kernelcolor = img->at<uchar>(ypos, xpos);
-							//cout << kernelcolor-pixelcolor << endl;
-							if (kernelcolor != 255)
-							{
-								bool shine = (kernelcolor - pixelcolor) > 10;
-								if ((kernelcolor - pixelcolor) > 5)
-								{
-									img->at<uchar>(y, x) = 255;
-									goto FINISHPIXEL;
-								}
-							}
-
-						}
-					}
+				int pixelabove = img->at<uchar>(y-1, x);
+				if (pixelabove - pixelcolor > 10 && pixelabove != 255) {
+					img->at<uchar>(y, x) = 255;
+					img->at<uchar>(y-1, x) = 255;
 				}
 			}
 		FINISHPIXEL:
@@ -326,166 +288,102 @@ void ImageMarbleDetector::shineMarker(Mat* img)
 	}
 }
 
+Marbles* ImageMarbleDetector::segmentsCOM(int* xvals, int points, int segments, int width) {
+	Marbles* marbles = new Marbles[segments];
+
+	int segmentindex = 1;
+	for (int i = 0; i < width; i++) {
+		if (i > segmentindex * (width/segments)) {
+		segmentindex++;
+		}
+		marbles[segmentindex-1].xcom += xvals[i] * i;
+		marbles[segmentindex - 1].significance += xvals[i];
+	}
 
 
-int ImageMarbleDetector::muddify(Mat* img)
-{
-	int whitepixels = 0;
-	for (int y = 0; y < img->rows; y++)
-	{
-		for (int x = 0; x < img->cols; x++)
-		{
-			pixelcolor = img->at<uchar>(y, x);
-			if (pixelcolor == 255)	//No need to fill already black ones
-			{
-				whitepixels++;
-				for (int yoff = -1; yoff < 2; yoff++)
-				{
-					for (int xoff = -1; xoff < 2; xoff++)
-					{
-						xpos = x + xoff;
-						ypos = y + yoff;
-						if (xpos > 0 && ypos > 0 && xpos < img->cols && ypos < img->rows)
-						{
-							kernelcolor = img->at<uchar>(ypos, xpos);
-							if (kernelcolor != 255)
-							{
-								img->at<uchar>(ypos, xpos) = (kernelcolor + pixelcolor) / 2;
-							}
-						}
-					}
-				}
+	for (int i = 0; i < segments; i++) {
+		if (marbles[i].significance != 0)
+			marbles[i].xcom /= marbles[i].significance;
+		else
+			marbles[i].xcom = -1;
+		//cout << "Segment" << i << "  xcom: " << marbles[i].xcom << "  Significance: " << marbles[i].significance << endl;
+	}
+
+	return marbles;
+}
+
+Circles* ImageMarbleDetector::findParameters(Mat* img) {
+	int points = 0;
+	int* buffer = new int[img->cols]{ 0 };	
+
+	for (int y = 0; y < img->rows; y++) {
+		for (int x = 0; x < img->cols; x++) {
+			if (img->at<uchar>(y, x) == 255) {
+				buffer[x] += 1;
+				points++;
 			}
 		}
 	}
-	return whitepixels;
+
+	Marbles *marbles = segmentsCOM(buffer, points, 16, img->cols);
+
+	Circles* circles = defineCircles(img, marbles, 16);
+	delete[] buffer;
+	delete[] marbles;
+	return circles;
 }
 
-float** ImageMarbleDetector::pointify(Mat* img, int whitepixels)
-{
-	float** points = NULL;
-	points = new float* [whitepixels];
-	int index = 0;
 
-	for (int y = 0; y < img->rows; y++)
-	{
-		for (int x = 0; x < img->cols; x++)
-		{
-			pixelcolor = img->at<uchar>(y, x);
-			if (pixelcolor == 255)	//No need to fill already black ones
-			{
-				//next white pixel
-				points[index] = new float[2];
-				int msum = 0; int xcom = 0; int ycom = 0;
-				for (int yoff = -1; yoff < 2; yoff++)
-				{
-					for (int xoff = -1; xoff < 2; xoff++)
-					{
-						xpos = x + xoff;
-						ypos = y + yoff;
-						if (xpos > 0 && ypos > 0 && xpos < img->cols && ypos < img->rows)
-						{
-							kernelcolor = img->at<uchar>(ypos, xpos);
-							if (kernelcolor != 255)
-							{
-								msum += kernelcolor;
-								xcom += kernelcolor * xpos;
-								ycom += kernelcolor * ypos;
-								img->at<uchar>(ypos, xpos) = (kernelcolor + pixelcolor) / 2;
-							}
-						}
-					}
-				}
-				xcom = xcom / msum;
-				ycom = ycom / msum;
-				points[index][0] = xcom;
-				points[index][1] = ycom;
-			}
+//Returns parameters of closest marble
+Circles* ImageMarbleDetector::defineCircles(Mat* img, Marbles *marbles, int size) {
+	Circles* circles = new Circles[size+1];		//So atleast 1 marble with the default deathmarked rad of -1
+	int circlesindex = 0;
+
+
+	int xcom_ = 0;
+	int sig_ = 0;
+	int dia_ = 0;
+	
+	for (int i = 0; i < size; i++) {
+		if (marbles[i].significance < 3) {
+			if (sig_ > 0) {
+				int x = xcom_ / sig_;
+				int y = img->rows / 2;
+				circles[circlesindex].center = Point(x, y);
+				circles[circlesindex].rad = dia_ / 2;
+				circlesindex++;
+				circle(*img, Point(x, y), dia_/2, 255);
+
+
+
+				xcom_ = 0;
+				sig_ = 0;
+				dia_ = 0;
+			}			
+		}
+		else {
+			xcom_ += marbles[i].xcom* marbles[i].significance;
+			sig_ += marbles[i].significance;
+			dia_ += img->cols / size;
 		}
 	}
-	return points;
+	if (sig_ > 0) {
+		int x = xcom_ / sig_;
+		int y = img->rows / 2;
+		circles[circlesindex].center = Point(x, y);
+		circles[circlesindex].rad = dia_ / 2;
+		circlesindex++;
+		circle(*img, Point(x, y), dia_ / 2, 255);
+	}
+
+
+
+	return circles;
 }
 
 
-
-
-int ImageMarbleDetector::segmentIMG(Mat* img, int xsegments, int ysegments, int prevcom)
+double ImageMarbleDetector::optimizedCIM(Mat* img, bool draw)
 {
-
-	int xlen = img->cols / xsegments;
-	int ylen = img->rows / ysegments;
-	int whitestsegment = 0;
-	int xcomofwhitest = -99;
-	int ycomofwhitest = -99;
-	int rad = 1;
-	for (int segy = 0; segy < ysegments; segy++)
-	{
-		for (int segx = 0; segx < xsegments; segx++)
-		{
-			//Each segment
-			float segmentwhiteness = 0;
-			float segmentxcom = 0;
-			float segmentycom = 0;
-			int leftmostx=9999; int rightmostx=0;
-
-			for (int y = 0; y < ylen; y++)
-			{
-				for (int x = 0; x < xlen; x++)
-				{
-					int xpos = xlen * segx + x;
-					int ypos = ylen * segy + y;
-					pixelcolor = img->at<uchar>(ypos, xpos);
-					segmentwhiteness += pixelcolor;
-					segmentxcom += pixelcolor * xpos;
-					segmentycom += pixelcolor * ypos;
-
-					if (pixelcolor == 255)
-					{
-						if (xpos < leftmostx)
-							leftmostx = xpos;
-						if (xpos > rightmostx)
-							rightmostx = xpos;
-					}
-				}
-			}
-			//CRUCIAL ORDER
-			segmentxcom = segmentxcom / segmentwhiteness;
-			segmentycom = segmentycom / segmentwhiteness;
-
-			segmentwhiteness = segmentwhiteness / (255 * xlen * ylen);
-
-			if (segmentwhiteness > whitestsegment)
-			{
-				whitestsegment = segmentwhiteness;
-				xcomofwhitest = segmentxcom;
-				ycomofwhitest = segmentycom;
-				rad = (rightmostx - leftmostx) / 2;
-			}
-
-			//cout << "Segment color of: " << segx << " " << segy << "   " << segmentwhiteness << endl;
-		}
-	}
-	coms[0] = xcomofwhitest;
-	coms[1] = ycomofwhitest;
-	coms[3] = rad;
-
-	int deltacom = abs(xcomofwhitest - prevcom);
-	if (coms[3] < 10 && ysegments > 1 && xsegments > 1)
-	{
-		return segmentIMG(img, xsegments/2, ysegments/2, xcomofwhitest);
-	}
-	else
-		return 1;
-
-}
-
-
-
-
-float ImageMarbleDetector::optimizedCIM(Mat* img, bool draw)
-{
-
-
 	//Binarify
 	Mat cImg;
 	cImg = img->clone();
@@ -494,86 +392,43 @@ float ImageMarbleDetector::optimizedCIM(Mat* img, bool draw)
 	cvtColor(cImg, cImg, COLOR_BGR2GRAY);
 	removeFloors(&cImg);
 	shineMarker(&cImg);
+	removeInsignificant(&cImg);
 	removeShades(&cImg);
-	removeOutliers(&cImg, 5);
-	removeOutliers(&cImg, 5);
-	segmentIMG(&cImg);			//updates int array coms with: xcom, ycom, radius
 
-	float reply = (coms[0] / cImg.cols)*(2*0.2724)-0.2724;
+
+	Circles* circles = findParameters(&cImg);
+	if (circles == NULL)	//When no marbles in image
+		return NULL;
+
+	int i = 0;
+	int biggestrad = 0;
+	int biggestradindex = 0;
+	while (circles[i].rad != -1) {
+		if (draw) {
+			circle(*img, circles[i].center, circles[i].rad, (0,0,255));
+		}
+		if (circles[i].rad > biggestrad) {
+			biggestrad = circles[i].rad;
+			biggestradindex = i;
+		}	
+		i++;
+	}
+	double reply = (double) circles[biggestradindex].center.x / img->cols;
+	reply = (double) reply * (double) IMAGEXANGLE - ((double) IMAGEXANGLE / 2);
 
 	if (draw)
 	{
-		Point center = Point(coms[0], coms[1]);
-		circle(*img, center, coms[3], 255);
-
-		img->at<Vec3b>(coms[1], coms[0]) = (1, 1, 255);
-
-
-		cout << endl << endl;
 		namedWindow("image", WINDOW_GUI_NORMAL);
-		imshow("image", *img);
-		waitKey();
+		cv::imshow("image", *img);
+		cv::waitKey();
 	}
 
+	delete[] circles;
 	cImg.release();
-
+	img->release();
 
 	return reply;
 }
 
-float ImageMarbleDetector::circlesInImage(Mat* img, bool draw)
-{
-	Mat cImg;
-	cImg = img->clone();
-	cImg = rotatingMaskFilter(img);
-	cvtColor(cImg, cImg, COLOR_BGR2GRAY);
-	removeFloors(&cImg);
-	removeOutliers(&cImg, 5);
-	shineMarker(&cImg);
-	removeShades(&cImg);
-	//These two screws up the algo here!
-	//drawEdges(&cImg);
-	//removeShades(&cImg);
-	//muddify(&cImg);
-
-
-	// Apply Hough Transform directly from opencv
-	float firstangle;
-	int largesradius = 0;
-	vector<Vec3f>  circles;
-	HoughCircles(cImg, circles, HOUGH_GRADIENT, 4.5, cImg.rows / 0.5, 50, 100, 5, 200);
-	for (size_t i = 0; i < circles.size(); i++) {
-		Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
-		int radius = cvRound(circles[i][2]);
-		float xcenter = circles[i][0];
-		float width = cImg.cols;
-		float angle = (xcenter / width) * 40 - 20;
-		if (draw)
-		{
-			cout << "Circle at " << angle << " degrees" << endl;
-			circle(cImg, center, radius, Scalar(255, 255, 255), 2, 8, 0);
-			if (radius > largesradius)
-			{
-				firstangle = angle;
-				largesradius = radius;
-			}
-		}
-
-	}
-	if (draw)
-	{
-		namedWindow("image", WINDOW_GUI_NORMAL);
-		imshow("image", cImg);
-		waitKey();
-	}
-
-
-	if (circles.size() == 0)
-	{
-		return -999;
-	}
-	else
-		return firstangle;
-}
 
 ImageMarbleDetector::~ImageMarbleDetector() {}
