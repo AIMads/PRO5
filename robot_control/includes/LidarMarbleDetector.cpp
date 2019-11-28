@@ -213,7 +213,7 @@ double LidarMarbleDetector::checkSegments(){
             Point last = _segments[i][_numPtsInSegment[i] - 1];
             auto circle = calculateCenterAndRadiusOfCircle(first, middle, last);
             //cout << "RADIUS  " << circle.radius << endl;
-            if (circle.radius < MAX_RADIUS){
+            if (MIN_RADIUS < circle.radius && circle.radius < MAX_RADIUS){
                 circleCenters[numCircles] = circle.center;
                 circleRadii[numCircles++] = circle.radius;
                 drawCircle(circle.center, circle.radius);

@@ -16,7 +16,8 @@
 
 #define MAX_LIDAR_RANGE 10
 #define SLOPE_DIFF 0.75
-#define MAX_RADIUS 70
+#define MIN_RADIUS 42
+#define MAX_RADIUS 58
 #define THRESHOLD 60
 #define ROTATION_OFFSET 1
 #define FOV (2.27 - (-2.27))
