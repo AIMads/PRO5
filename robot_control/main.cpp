@@ -141,7 +141,8 @@ int main(int _argc, char **_argv) {
     float targetDir = NO_TARGET;
 
     bool imageConfirmed = false;
-
+	bool drivingToMarble = false;
+	int liderTimeout = 0;
     // Object init
     FuzzyController fc;
     LidarMarbleDetector lmd = LidarMarbleDetector(lidarData,NUM_DATA_POINTS,400,400);
@@ -158,15 +159,28 @@ int main(int _argc, char **_argv) {
 
 
         // Change speed and direction based on fuzzycontrol
-
-        targetDir = lmd.setLidarData(lidarData);
         std::cout << "TargetDir: " << targetDir << std::endl;
-
-        if(targetDir != 3)
-        {
-            dir = -targetDir;
-        }
-        if(dir == -targetDir && !imageConfirmed){
+		if (!drivingToMarble || liderTimeout == 0) {	//We only look for new marbles if we aren't currently driving to a marble														
+			-targetDir = lmd.setLidarData(lidarData);	// or after a short timeout. The timeout make sure it can hit a marble, and shortly 
+			if (targetDir != NO_TARGET) {				//after go to a new position
+				float imagedir = imd.optimizedCIM(&image);
+				if (imagedir != NULL) {
+					dir = targetDir;
+					drivingToMarble = true;
+				}
+				else {
+					drivingToMarble = false;
+				}
+			}
+		}        
+		else {
+			imageConfirmed = false
+		}
+		liderTimeout++;
+		if (liderTimeout > 20)
+			liderTimeout == 0;
+		/*
+        if(dir == targetDir && !imageConfirmed){
             float imagedir = imd.optimizedCIM(&image,false);
             imageConfirmed = false;
             if(std::abs(imagedir) < 12 * 2.27 / 100){
@@ -175,6 +189,7 @@ int main(int _argc, char **_argv) {
                 std::cout << "Image confirmed!" << std::endl;
             }
         }
+		*/
         
         // Generate a pose
         ignition::math::Pose3d pose(double(speed), 0, 0, 0, 0, double(dir));
