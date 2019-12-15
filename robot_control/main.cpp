@@ -8,11 +8,17 @@
 #include "includes/FuzzyController.h"
 #include "includes/LidarMarbleDetector.h"
 #include "includes/ImageMarbleDetector.h"
+#include "includes/ParticleFilter.h"
+
 #define NUM_DATA_POINTS 200
+#define NUM_REDUNDANT_POINTS 5
+#define IMG_SCL_FCTR (double) 10/1.41735
 
 double * lidarData = new double[NUM_DATA_POINTS];
-
+float * reducedLidarData = new float[NUM_LIDAR_DATA_PTS];
 Mat image;
+float robDX = 0;
+float robDY = 0;
 
 void statCallback(ConstWorldStatisticsPtr &_msg) {
     (void)_msg;
@@ -24,10 +30,13 @@ void statCallback(ConstWorldStatisticsPtr &_msg) {
 void poseCallback(ConstPosesStampedPtr &_msg) {
     // Dump the message contents to stdout.
     //  std::cout << _msg->DebugString();
-/*
+    
     for (int i = 0; i < _msg->pose_size(); i++) {
         if (_msg->pose(i).name() == "pioneer2dx") {
-
+            
+            robDX = _msg->pose(i).position().x();
+            robDY = _msg->pose(i).position().y();
+            /*
             std::cout << std::setprecision(2) << std::fixed << std::setw(6)
             << _msg->pose(i).position().x() << std::setw(6)
             << _msg->pose(i).position().y() << std::setw(6)
@@ -35,9 +44,9 @@ void poseCallback(ConstPosesStampedPtr &_msg) {
             << _msg->pose(i).orientation().w() << std::setw(6)
             << _msg->pose(i).orientation().x() << std::setw(6)
             << _msg->pose(i).orientation().y() << std::setw(6)
-            << _msg->pose(i).orientation().z() << std::endl;
+            << _msg->pose(i).orientation().z() << std::endl;*/
         }
-    }*/
+    }
 }
 
 void cameraCallback(ConstImageStampedPtr &msg) {
@@ -136,6 +145,9 @@ int main(int _argc, char **_argv) {
     worldPublisher->WaitForConnection();
     worldPublisher->Publish(controlMessage);
 
+    Mat floorPlan = imread("../models/bigworld/meshes/floor_plan.png");
+    resize(floorPlan,floorPlan,Size(847,564),IMG_SCL_FCTR,IMG_SCL_FCTR,INTER_NEAREST);
+    
     float speed = 0.0;
     float dir = 0.0;
     float targetDir = NO_TARGET;
@@ -146,11 +158,11 @@ int main(int _argc, char **_argv) {
     FuzzyController fc;
     LidarMarbleDetector lmd = LidarMarbleDetector(lidarData,NUM_DATA_POINTS,400,400);
     ImageMarbleDetector imd;
-    
+    //ParticleFilter pf = ParticleFilter(&floorPlan);
 
     // Loop
     while (true) {
-        gazebo::common::Time::MSleep(10);
+        gazebo::common::Time::MSleep(100);
         
         std::tie(dir,speed) = fc.controller(dir,lidarData);
 
@@ -158,10 +170,18 @@ int main(int _argc, char **_argv) {
 
 
         // Change speed and direction based on fuzzycontrol
+        int indexOfRays = 0;
+        for (int i = 0; i < NUM_DATA_POINTS - NUM_REDUNDANT_POINTS; i += 5) {
+            reducedLidarData[indexOfRays++] = (float) lidarData[i];
+        }
+        
 
         targetDir = lmd.setLidarData(lidarData);
+        //pf.setData(speed, dir, reducedLidarData);
+        //pf.updateRobotPos(robDX,robDY);
+        
+        
         std::cout << "TargetDir: " << targetDir << std::endl;
-
         if(targetDir != 3)
         {
             dir = -targetDir;

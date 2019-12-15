@@ -7,6 +7,8 @@ SOURCES += main.cpp
 SOURCES += includes/FuzzyController.cpp
 SOURCES += includes/LidarMarbleDetector.cpp
 SOURCES += includes/ImageMarbleDetector.cpp
+SOURCES += includes/ParticleFilter.cpp
+SOURCES += includes/Particle.cpp
 
 
 QT_CONFIG -= no-pkg-config
